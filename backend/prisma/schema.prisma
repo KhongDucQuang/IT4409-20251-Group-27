@@ -1,0 +1,52 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  password  String
+  boards    Board[]
+  createdAt DateTime @default(now())
+}
+
+model Board {
+  id        String   @id @default(cuid())
+  title     String
+  owner     User     @relation(fields: [ownerId], references: [id])
+  ownerId   String
+  lists     List[]
+  cards     Card[]
+  createdAt DateTime @default(now())
+}
+
+model List {
+  id        String   @id @default(cuid())
+  title     String
+  position  Float    // Dùng Float để dễ dàng sắp xếp lại
+  board     Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  boardId   String
+  cards     Card[]
+  createdAt DateTime @default(now())
+}
+
+model Card {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  position    Float     // Dùng Float để dễ dàng sắp xếp lại
+  dueDate     DateTime?
+  list        List      @relation(fields: [listId], references: [id], onDelete: Cascade)
+  listId      String
+  board       Board     @relation(fields: [boardId], references: [id])
+  boardId     String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
