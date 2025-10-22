@@ -3,6 +3,9 @@ import { Router } from 'express';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { generateToken } from '../utils/jwt';
+import passport from "passport";
+import { Request, Response, NextFunction } from "express";
+
 
 const prisma = new PrismaClient();
 const router = Router();
@@ -48,7 +51,8 @@ router.post('/register', async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({ message: 'Internal server error' });
+    console.error("Error in /register:", error);
+    res.status(500).json({ message: 'Internal server error', error });
   }
 });
 
@@ -84,5 +88,40 @@ router.post('/login', async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+
+const asyncHandler =
+  (fn: (req: Request, res: Response, next: NextFunction) => Promise<void>) =>
+    (req: Request, res: Response, next: NextFunction) =>
+      Promise.resolve(fn(req, res, next)).catch(next);
+
+// login bằng Google
+router.get(
+  "/google",
+  passport.authenticate("google", { scope: ["profile", "email"] })
+);
+
+// Callback sau khi Google xác thực
+router.get(
+  "/google/callback",
+  passport.authenticate("google", { failureRedirect: "/login" }),
+  asyncHandler(async (req: any, res: Response) => {
+    const { id, displayName, emails, photos } = req.user;
+
+    let user = await prisma.user.findUnique({ where: { googleId: id } });
+    if (!user) {
+      user = await prisma.user.create({
+        data: {
+          googleId: id,
+          name: displayName || "No name",
+          email: emails && emails[0] ? emails[0].value : `${id}@google.temp`, // fallback
+        },
+      });
+    }
+
+    const token = generateToken(user.id);
+    res.redirect(`${process.env.CLIENT_URL}/login-success?token=${token}`);
+  })
+);
+
 
 export default router;

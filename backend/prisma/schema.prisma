@@ -12,7 +12,8 @@ model User {
   id        String   @id @default(cuid())
   email     String   @unique
   name      String
-  password  String
+  googleId  String?  @unique
+  password  String?
   boards    Board[]
   createdAt DateTime @default(now())
 }

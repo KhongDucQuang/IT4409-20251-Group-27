@@ -1,18 +1,34 @@
 // src/server.ts
-import express from 'express';
-import cors from 'cors';
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import session from "express-session";
+import passport from "passport";
+import "./config/passport"; // load strategy
 
-// Import các router đã tạo
-import authRouter from './api/auth';
-import boardsRouter from './api/boards';
-import listsRouter from './api/lists';
-import cardsRouter from './api/cards';
+import authRouter from "./api/auth";
+import boardsRouter from "./api/boards";
+import listsRouter from "./api/lists";
+import cardsRouter from "./api/cards";
+import { authenticateToken } from "./middlewares/auth";
 
-import { authenticateToken } from './middlewares/auth';
+dotenv.config();
 
 const app = express();
+app.use(
+  session({
+    secret: "process.env.SESSION_SECRET",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: false, // true nếu dùng HTTPS
+      maxAge: 24 * 60 * 60 * 1000, // 1 ngày
+    },
+  })
+);
 app.use(cors());
 app.use(express.json());
+app.use(passport.initialize());
 
 // === Gắn các router vào ứng dụng ===
 
