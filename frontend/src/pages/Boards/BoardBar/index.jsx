@@ -93,7 +93,10 @@ function BoardBar() {
               width: 34,
               height: 34,
               fontSize: 16,
-              border: 'none'
+              border: 'none',
+              color: 'white',
+              cursor: 'pointer',
+              '&:first-of-type': { bgcolor: '#a4b0be' }
             }
           }}
         >
@@ -108,6 +111,12 @@ function BoardBar() {
           </Tooltip>
           <Tooltip title="HaHa">
             <Avatar alt="HaHa" src="https://thuvienquangngai.vn/wp-content/uploads/2025/01/avatar-vo-tri-ngau-9.jpg"/>
+          </Tooltip>
+          <Tooltip title="MeoCute">
+            <Avatar alt="MeoCute" src="https://thuvienquangngai.vn/wp-content/uploads/2025/01/avatar-vo-tri-ngau-13-1.jpg"/>
+          </Tooltip>
+          <Tooltip title="MeoCute">
+            <Avatar alt="MeoCute" src="https://thuvienquangngai.vn/wp-content/uploads/2025/01/avatar-vo-tri-ngau-13-1.jpg"/>
           </Tooltip>
         </AvatarGroup>
       </Box>
