@@ -1,4 +1,4 @@
-import ModeSelect from '~/components/ModeSelect'
+import ModeSelect from '~/components/ModeSelect/ModeSelect'
 import Box from '@mui/material/Box'
 import AppsIcon from '@mui/icons-material/Apps'
 import SvgIcon from '@mui/icons-material/Apps'
@@ -36,7 +36,7 @@ function AppBar() {
           <Typography varient="span" sx={{ fontSize: '1.2rem', fontWeight: 'bold', color: 'primary.main' }}>Trello</Typography>
         </Box>
 
-        <Box sx={{display: {sx:'none', md:'flex'}, gap: 1}}>
+        <Box sx={{display: {xs:'none', md:'flex'}, gap: 1}}>
           <Workspaces />
           <Recent />
           <Starred />
