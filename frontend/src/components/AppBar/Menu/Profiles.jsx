@@ -5,7 +5,6 @@ import Avatar from '@mui/material/Avatar'
 import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
 import ListItemIcon from '@mui/material/ListItemIcon'
-import hustImage from '~/assets/hust.png'
 import Tooltip from '@mui/material/Tooltip'
 import IconButton from '@mui/material/IconButton'
 import PersonAdd from '@mui/icons-material/PersonAdd'
@@ -32,7 +31,7 @@ function Profiles() {
           aria-haspopup="true"
           aria-expanded={open ? 'true' : undefined}
         >
-          <Avatar sx={{ width: 30, height: 30 }} alt='Hust' src={hustImage} />
+          <Avatar sx={{ width: 36, height: 36 }} alt='Meo' src="https://thuvienquangngai.vn/wp-content/uploads/2025/01/avatar-vo-tri-ngau-13-1.jpg" />
         </IconButton>
       </Tooltip>
       <Menu
