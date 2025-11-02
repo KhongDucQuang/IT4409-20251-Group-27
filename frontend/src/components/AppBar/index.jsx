@@ -17,9 +17,6 @@ import Tooltip from '@mui/material/Tooltip'
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
 import Profiles from './Menu/Profiles'
 import LibraryAddIcon from '@mui/icons-material/LibraryAdd'
-import InputAdornment from '@mui/material/InputAdornment'
-import SearchIcon from '@mui/icons-material/Search'
-import CloseIcon from '@mui/icons-material/Close'
 
 function AppBar() {
   const [searchValue, setSearchValue] = useState('')
@@ -44,22 +41,12 @@ function AppBar() {
           <Typography varient="span" sx={{ fontSize: '1.2rem', fontWeight: 'bold', color: 'white' }}>Trello</Typography>
         </Box>
 
-        <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 1 }}>
+        <Box sx={{display: {sx:'none', md:'flex'}, gap: 1}}>
           <Workspaces />
           <Recent />
           <Starred />
           <Templates />
-          <Button
-            sx={{
-              color: 'white',
-              border: 'none',
-              '&:hover': { border: 'none' }
-            }}
-            variant="outlined"
-            startIcon={<LibraryAddIcon/>}
-          >
-            Create
-          </Button>
+          <Button variant="oulined" startIcon={<LibraryAddIcon/>}>Create</Button>
         </Box>
       </Box>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
