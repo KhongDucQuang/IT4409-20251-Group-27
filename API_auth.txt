@@ -1,0 +1,67 @@
+API AUTH - TỔNG HỢP ENDPOINT
+
+Defaut : http://localhost:3000/api/auth
+
+POST /register
+
+Chức năng: Đăng ký tài khoản mới
+
+Dữ liệu đầu vào (Request):
+{
+"email": "user@gmail.com
+",
+"password": "123456",
+"name": "User Name"
+}
+
+Dữ liệu trả về (Response):
+{
+"token": "jwt_token_here",
+"user": {
+"id": "userId",
+"email": "user@gmail.com
+",
+"name": "User Name"
+}
+}
+
+
+POST /login
+
+Chức năng: Đăng nhập bằng email và mật khẩu
+
+Dữ liệu đầu vào (Request):
+{
+"email": "user@gmail.com
+",
+"password": "123456"
+}
+
+Dữ liệu trả về (Response):
+
+{
+"token": "jwt_token_here"
+
+GET /google
+
+Chức năng: Bắt đầu quy trình đăng nhập bằng Google (OAuth2)
+
+Dữ liệu đầu vào (Request):
+Không có body (người dùng được chuyển hướng đến Google Login).
+
+Dữ liệu trả về (Response):
+Redirect đến trang đăng nhập của Google.
+
+
+GET /google/callback
+
+Chức năng: Nhận phản hồi sau khi Google xác thực thành công
+
+Dữ liệu đầu vào (Request):
+Không có body (Google trả dữ liệu qua URL callback).
+
+Dữ liệu trả về (Response):
+Redirect đến frontend với token:
+{CLIENT_URL}/login-success?token=jwt_token_here
+
+Mã trạng thái: 302 (Redirect)
