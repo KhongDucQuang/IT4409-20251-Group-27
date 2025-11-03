@@ -10,22 +10,22 @@ import AvatarGroup from '@mui/material/AvatarGroup'
 import Tooltip from '@mui/material/Tooltip'
 import Button from '@mui/material/Button'
 import PersonAddIcon from '@mui/icons-material/PersonAdd'
-import {capitalizeFirstLetter} from '~/utils/formatter'
+import { capitalizeFirstLetter } from '~/utils/formatter'
 
 const MENU_STYLES ={
-  color: 'primary.main',
-  bgcolor: 'white',
+  color: 'white',
+  bgcolor: 'transparent',
   border: 'none',
   paddingX: '5px',
   borderRadius: '4px',
-  '&.MuiSvgIcon-root': {
-    color: 'primary.main',
+  '.MuiSvgIcon-root': {
+    color: 'white'
   },
   '&:hover': {
-    bgcolor: 'primary.90',
+    bgcolor: 'primary.50'
   }
 }
-function BoardBar({board}) {
+function BoardBar({ board }) {
   return (
     <Box
       sx={{
@@ -37,70 +37,90 @@ function BoardBar({board}) {
         gap: 2,
         paddingX: 2,
         overflowX: 'auto',
-        borderTop: '1px solid #55b7f2',
+        bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#34495e' : '#1976d2')
       }}
     >
       {/* Board bar content goes here */}
-      <Box sx={{display: 'flex', alignItems: 'center', gap: 2}}>
-        <Chip 
-        sx={MENU_STYLES}
-        icon={<DashboardIcon/>} 
-        label={board.title}
-        clickable
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+        <Chip
+          sx={MENU_STYLES}
+          icon={<DashboardIcon/>}
+          label={board?.title}
+          clickable
         />
 
-        <Chip 
-        sx={MENU_STYLES}
-        icon={<VpnLockIcon/>} 
-        label={capitalizeFirstLetter(board?.type)}
-        clickable
+        <Chip
+          sx={MENU_STYLES}
+          icon={<VpnLockIcon/>}
+          label={capitalizeFirstLetter(board?.type)}
+          clickable
         />
 
-        <Chip 
-        sx={MENU_STYLES}
-        icon={<AddToDriveIcon/>} 
-        label="Add To Google Drive"
-        clickable
+        <Chip
+          sx={MENU_STYLES}
+          icon={<AddToDriveIcon/>}
+          label="Add To Google Drive"
+          clickable
         />
 
-        <Chip 
-        sx={MENU_STYLES}
-        icon={<BoltIcon/>} 
-        label="Automation"
-        clickable
+        <Chip
+          sx={MENU_STYLES}
+          icon={<BoltIcon/>}
+          label="Automation"
+          clickable
         />
 
-        <Chip 
-        sx={MENU_STYLES}
-        icon={<FilterListIcon/>} 
-        label="Filters"
-        clickable
+        <Chip
+          sx={MENU_STYLES}
+          icon={<FilterListIcon/>}
+          label="Filters"
+          clickable
         />
       </Box>
-
-      <Box sx={{display: 'flex', alignItems: 'center', gap: 2}}>
-        {/* Right side content can go here */}
-        <Button variant="outlined" startIcon={<PersonAddIcon/>} >Invite</Button>
-        <AvatarGroup 
-          max={7}
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+        <Button
+          variant="outlined"
+          startIcon={<PersonAddIcon/>}
           sx={{
-            '& > .MuiAvatar-root': { width: 34, height: 34, fontSize: 16}
+            color: 'white',
+            borderColor: 'white',
+            '&:hover': { borderColor: 'white' }
           }}
         >
-          <Tooltip title="CNWeb">
-            <Avatar alt="CNWeb" src="/static/images/avatar/1.jpg" /> 
+          Invite
+        </Button>
+        <AvatarGroup
+          max={4}
+          sx={{
+            gap: '10px',
+            '& .MuiAvatar-root': {
+              width: 34,
+              height: 34,
+              fontSize: 16,
+              border: 'none',
+              color: 'white',
+              cursor: 'pointer',
+              '&:first-of-type': { bgcolor: '#a4b0be' }
+            }
+          }}
+        >
+          <Tooltip title="MeoCute">
+            <Avatar alt="MeoCute" src="https://thuvienquangngai.vn/wp-content/uploads/2025/01/avatar-vo-tri-ngau-13-1.jpg"/>
           </Tooltip>
-          <Tooltip title="TNWeb">
-            <Avatar alt="TNWeb" src="/static/images/avatar/1.jpg" /> 
+          <Tooltip title="VitCute">
+            <Avatar alt="VitCute" src="https://thuvienquangngai.vn/wp-content/uploads/2025/01/avatar-vo-tri-ngau-16.jpg"/>
           </Tooltip>
-          <Tooltip title="ANWeb">
-            <Avatar alt="ANWeb" src="/static/images/avatar/1.jpg" /> 
+          <Tooltip title="HiHi">
+            <Avatar alt="HiHi" src="https://thuvienquangngai.vn/wp-content/uploads/2025/01/avatar-vo-tri-ngau-11.jpg"/>
           </Tooltip>
-          <Tooltip title="PNWeb">
-            <Avatar alt="PNWeb" src="/static/images/avatar/1.jpg" /> 
+          <Tooltip title="HaHa">
+            <Avatar alt="HaHa" src="https://thuvienquangngai.vn/wp-content/uploads/2025/01/avatar-vo-tri-ngau-9.jpg"/>
           </Tooltip>
-          <Tooltip title="CNWeb">
-            <Avatar alt="CNWeb" src="/static/images/avatar/1.jpg" /> 
+          <Tooltip title="MeoCute">
+            <Avatar alt="MeoCute" src="https://thuvienquangngai.vn/wp-content/uploads/2025/01/avatar-vo-tri-ngau-13-1.jpg"/>
+          </Tooltip>
+          <Tooltip title="MeoCute">
+            <Avatar alt="MeoCute" src="https://thuvienquangngai.vn/wp-content/uploads/2025/01/avatar-vo-tri-ngau-13-1.jpg"/>
           </Tooltip>
         </AvatarGroup>
       </Box>
@@ -109,4 +129,3 @@ function BoardBar({board}) {
 }
 
 export default BoardBar
-
