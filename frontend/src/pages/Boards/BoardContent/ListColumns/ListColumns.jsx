@@ -8,7 +8,7 @@ import { SortableContext, horizontalListSortingStrategy } from '@dnd-kit/sortabl
 function ListColumns({ columns }) {
 
   return (
-    <SortableContext items = {columns} strategy={horizontalListSortingStrategy}>
+    <SortableContext items = {columns?.map(c => c._id)} strategy={horizontalListSortingStrategy}>
     <Box sx={{
       bgcolor: 'inherit',
       width:'100%',

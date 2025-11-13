@@ -34,7 +34,8 @@ function Column({ column }) {
     data: {...column}
    });
   const dndKitColumnStyles = { 
-    transform: CSS.Transform.toString(transform),
+    // touchAction: 'none', // ngăn chặn hành vi cuộn mặc định trên thiết bị cảm ứng khi kéo và thả khi dùng sensor
+    transform: CSS.Translate.toString(transform), // translate chỉ di chuyển, transform có thể bao gồm cả rotate, scale
     transition
   };
 
