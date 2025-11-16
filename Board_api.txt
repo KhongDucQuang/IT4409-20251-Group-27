@@ -1,0 +1,7 @@
+- API Endpoints:
+  - POST /api/boards: Tạo board mới (người tạo là ADMIN).
+  - GET /api/boards: Lấy danh sách tất cả board mà user là thành viên (có phân trang).
+  - GET /api/boards/:boardId: Lấy toàn bộ thông tin chi tiết của 1 board (bao gồm lists, cards, members, labels, comments, attachments, checklists...).
+  - PATCH /api/boards/:boardId: Cập nhật board (đổi title, backgroundImageUrl). (Yêu cầu ADMIN).
+  - DELETE /api/boards/:boardId: Xóa board. (Yêu cầu ADMIN).
+  - POST /api/boards/:boardId/members: Mời thành viên mới vào board qua email. (Yêu cầu ADMIN).
