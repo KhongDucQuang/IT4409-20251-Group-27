@@ -13,18 +13,29 @@ model User {
   email     String   @unique
   name      String
   password  String
-  boards    Board[]
+  bio       String?
+  avatarUrl String?
   createdAt DateTime @default(now())
+  memberships BoardMember[] // Các board mà user này tham gia
+  assignedCards AssigneesOnCards[] // Các card mà user này được gán
+  comments      Comment[]     // Một user có thể viết nhiều comment
+  attachments   Attachment[]  // Một user có thể upload nhiều attachment
+  activities    Activity[]
+  notifications Notification[] // <-- THÊM DÒNG NÀY (những thông báo mà user này nhận được)
+  sentNotifications Notification[] @relation("SenderNotifications") // <-- THÊM DÒNG NÀY (những thông báo mà user này gửi)
 }
 
 model Board {
   id        String   @id @default(cuid())
   title     String
-  owner     User     @relation(fields: [ownerId], references: [id])
-  ownerId   String
   lists     List[]
   cards     Card[]
   createdAt DateTime @default(now())
+  backgroundImageUrl String?
+  labels    Label[]
+  members   BoardMember[] // Danh sách thành viên của board
+  activities    Activity[]
+  notifications Notification[]
 }
 
 model List {
@@ -41,7 +52,7 @@ model Card {
   id          String    @id @default(cuid())
   title       String
   description String?
-  position    Float     // Dùng Float để dễ dàng sắp xếp lại
+  position    Float
   dueDate     DateTime?
   list        List      @relation(fields: [listId], references: [id], onDelete: Cascade)
   listId      String
@@ -49,4 +60,138 @@ model Card {
   boardId     String
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+  labels    LabelsOnCards[] // Thêm dòng này
+  assignees AssigneesOnCards[] // Thêm dòng này
+  comments      Comment[]     // Một card có thể có nhiều comment
+  attachments   Attachment[]  // Một card có thể có nhiều attachment
+  activities    Activity[]
+  checklists    Checklist[]
+  notifications Notification[]
+}
+
+enum Role {
+  ADMIN  // Chủ sở hữu, có thể xóa board, mời người
+  MEMBER // Thành viên, có thể tạo/sửa card
+}
+
+model BoardMember {
+  id        String   @id @default(cuid())
+  board     Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  boardId   String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  role      Role     @default(MEMBER)
+  createdAt DateTime @default(now())
+
+  @@unique([boardId, userId]) // Đảm bảo một user chỉ tham gia board 1 lần
+}
+
+// Bảng trung gian cho Card <> User (nhiều-nhiều)
+model AssigneesOnCards {
+  card    Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  cardId  String
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId  String
+
+  @@id([cardId, userId]) // Khóa chính kết hợp
+}
+
+model Label {
+  id      String   @id @default(cuid())
+  name    String
+  color   String   // VD: "#FF5733"
+  board   Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  boardId String
+  cards   LabelsOnCards[]
+}
+
+model LabelsOnCards {
+  card    Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  cardId  String
+  label   Label    @relation(fields: [labelId], references: [id], onDelete: Cascade)
+  labelId String
+
+  @@id([cardId, labelId]) // Khóa chính kết hợp
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String   // Nội dung bình luận
+  createdAt DateTime @default(now())
+
+  card      Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  cardId    String
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+}
+
+model Attachment {
+  id        String   @id @default(cuid())
+  fileName  String   // Tên file gốc
+  url       String   // Đường dẫn (URL) tới file đã lưu
+  mimeType  String   // Loại file (ví dụ: "image/png")
+  uploadedAt DateTime @default(now())
+
+  card      Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  cardId    String
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+}
+
+model Activity {
+  id        String   @id @default(cuid())
+  content   String   // Nội dung, ví dụ: "User A đã thêm card 'Fix bug' vào list 'To Do'"
+  createdAt DateTime @default(now())
+
+  // Nối với User, Board, và (tùy chọn) Card
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  board     Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  boardId   String
+  card      Card?    @relation(fields: [cardId], references: [id], onDelete: SetNull) // Dùng SetNull để lỡ card bị xóa thì log vẫn còn
+  cardId    String?
+}
+
+model Checklist {
+  id        String   @id @default(cuid())
+  title     String
+  position  Float
+
+  card      Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  cardId    String
+
+  items     ChecklistItem[]
+}
+
+model ChecklistItem {
+  id          String    @id @default(cuid())
+  content     String
+  isCompleted Boolean   @default(false)
+  position    Float
+
+  checklist   Checklist @relation(fields: [checklistId], references: [id], onDelete: Cascade)
+  checklistId String
+}
+
+model Notification {
+  id          String    @id @default(cuid())
+  content     String    // Nội dung thông báo (ví dụ: "User A đã nhắc đến bạn trong thẻ 'Tên thẻ'")
+  isRead      Boolean   @default(false) // Đã đọc hay chưa
+  createdAt   DateTime  @default(now())
+
+  // Thông báo này dành cho user nào
+  recipient   User      @relation(fields: [recipientId], references: [id], onDelete: Cascade)
+  recipientId String
+
+  // Thông báo này đến từ user nào (người nhắc đến, người gán)
+  sender      User?     @relation("SenderNotifications", fields: [senderId], references: [id], onDelete: SetNull)
+  senderId    String?
+
+  // (Tùy chọn) Để dễ truy cập thông báo liên quan đến board/card cụ thể
+  board       Board?    @relation(fields: [boardId], references: [id], onDelete: SetNull)
+  boardId     String?
+  card        Card?     @relation(fields: [cardId], references: [id], onDelete: SetNull)
+  cardId      String?
 }
