@@ -11,6 +11,7 @@ import boardsRouter from "./api/boards";
 import listsRouter from "./api/lists";
 import cardsRouter from "./api/cards";
 import { authenticateToken } from "./middlewares/auth";
+import inviteRoutes from './api/invite';
 
 dotenv.config();
 
@@ -40,7 +41,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/boards', authenticateToken, boardsRouter);
 app.use('/api/lists', authenticateToken, listsRouter);
 app.use('/api/cards', authenticateToken, cardsRouter);
-
+app.use('/api/boards', authenticateToken, inviteRoutes);
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
