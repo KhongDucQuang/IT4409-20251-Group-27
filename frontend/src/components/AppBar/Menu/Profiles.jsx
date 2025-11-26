@@ -10,16 +10,34 @@ import IconButton from '@mui/material/IconButton'
 import PersonAdd from '@mui/icons-material/PersonAdd'
 import Settings from '@mui/icons-material/Settings'
 import Logout from '@mui/icons-material/Logout'
+import { useNavigate } from 'react-router-dom'
 
 function Profiles() {
   const [anchorEl, setAnchorEl] = React.useState(null)
   const open = Boolean(anchorEl)
+
+  const navigate = useNavigate()
+
+
+  const userInfo = JSON.parse(localStorage.getItem('userInfo')) || {}
+
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget)
   }
+
   const handleClose = () => {
     setAnchorEl(null)
   }
+
+  const handleLogout = () => {
+    localStorage.removeItem('accessToken')
+    localStorage.removeItem('userInfo')
+
+    handleClose()
+
+    navigate('/login')
+  }
+
   return (
     <Box>
       <Tooltip title="Account settings">
@@ -31,7 +49,11 @@ function Profiles() {
           aria-haspopup="true"
           aria-expanded={open ? 'true' : undefined}
         >
-          <Avatar sx={{ width: 36, height: 36 }} alt='Meo' src="https://thuvienquangngai.vn/wp-content/uploads/2025/01/avatar-vo-tri-ngau-13-1.jpg" />
+          <Avatar
+            sx={{ width: 36, height: 36 }}
+            alt={userInfo?.name || 'User'}
+            src={userInfo?.avatar}
+          />
         </IconButton>
       </Tooltip>
       <Menu
@@ -40,16 +62,15 @@ function Profiles() {
         open={open}
         onClose={handleClose}
         MenuListProps={{
-          list: {
-            'aria-labelledby': 'basic-button-profiles'
-          }
+          'aria-labelledby': 'basic-button-profiles'
         }}
       >
-        <MenuItem>
-          <Avatar sx= {{ width: 28, height: 28, mr: 2 }} /> Profile
+        <MenuItem onClick={handleClose}>
+          {/* Cập nhật Avatar nhỏ bên trong cũng theo user */}
+          <Avatar sx={{ width: 28, height: 28, mr: 2 }} src={userInfo?.avatar} /> Profile
         </MenuItem>
-        <MenuItem>
-          <Avatar sx= {{ width: 28, height: 28, mr: 2 }}/> My account
+        <MenuItem onClick={handleClose}>
+          <Avatar sx={{ width: 28, height: 28, mr: 2 }} src={userInfo?.avatar} /> My account
         </MenuItem>
         <Divider />
         <MenuItem>
@@ -64,9 +85,10 @@ function Profiles() {
           </ListItemIcon>
           Settings
         </MenuItem>
-        <MenuItem>
+
+        <MenuItem onClick={handleLogout} sx={{ color: 'error.main' }}>
           <ListItemIcon>
-            <Logout fontSize="small" />
+            <Logout fontSize="small" color="error" />
           </ListItemIcon>
           Logout
         </MenuItem>
