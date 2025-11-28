@@ -18,22 +18,29 @@ import Button from '@mui/material/Button'
 import DragHandleIcon from '@mui/icons-material/DragHandle'
 import ListCards from './ListCards/ListCards'
 import { mapOrder } from '~/utils/sorts'
+import { useSortable } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 
 function Column({ column }) {
-  const {attributes, listeners, setNodeRef, transform, transition, isDragging} = useSortable({ 
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: column._id,
-    data: {...column}
-   });
-  const dndKitColumnStyles = { 
-    // touchAction: 'none', // ngăn chặn hành vi cuộn mặc định trên thiết bị cảm ứng khi kéo và thả khi dùng sensor
-    transform: CSS.Translate.toString(transform), // translate chỉ di chuyển, transform có thể bao gồm cả rotate, scale
+    data: { ...column }
+  })
+
+  const dndKitColumnStyles = {
+    // touchAction: 'none', // Dành cho sensor default dạng PointerSensor
+    // Nếu sử dụng CSS.Transform như docs sẽ lỗi kiểu stretch
+    transform: CSS.Translate.toString(transform),
     transition,
-    height: '100%', //để kéo thả cột nhỏ sang cột lớn không phải kéo vào giữa thì mới được 
-    opacity: isDragging ? 0.5 : 1 
-  };
+    // Chiều cao phải luôn max 100% vì nếu không sẽ lỗilúc kèo column ngắn qua
+    // một cái column dài thì phải kéo ở khu vực giữa giữa rất khó chịu, lúc này phải kết
+    // hợp với {...listeners} nằm ở box chứ không phải ở div ngoài cùng để tránh trường hợp kéo vào vùng xanh.
+    height: '100%',
+    opacity: isDragging ? 0.5 : undefined
+  }
 
   const [anchorEl, setAnchorEl] = React.useState(null)
   const open = Boolean(anchorEl)
@@ -44,20 +51,24 @@ function Column({ column }) {
     setAnchorEl(null)
   }
   const orderedCards = mapOrder(column?.cards, column?.cardOrderIds, '_id')
+  // Phải bọc div ở đây vì vấn đề chiều cao của column khi kéo thả sẽ có bug flickering
   return (
-    // bọc vào div để kéo thả cột nhỏ sang cột lớn không phải kéo vào giữa thì mới được 
-    <div ref={setNodeRef} style = {dndKitColumnStyles} {...attributes} >
-      <Box 
+    <div
+      ref={setNodeRef}
+      style={dndKitColumnStyles}
+      {...attributes}
+    >
+      <Box
         {...listeners}
         sx={{
-            minWidth: '300px',
-            maxWidth: '300px',
-            bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#333643' : '#ebecf0'),
-            ml: 2,
-            borderRadius: '6px',
-            height: 'fit-content',
-            maxHeight: (theme) => `calc(${theme.trello.boardContentHeight} - ${theme.spacing(5)})`
-          }}
+          minWidth: '300px',
+          maxWidth: '300px',
+          bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#333643' : '#ebecf0'),
+          ml: 2,
+          borderRadius: '6px',
+          height: 'fit-content',
+          maxHeight: (theme) => `calc(${theme.trello.boardContentHeight} - ${theme.spacing(5)})`
+        }}
       >
         {/* Box Column Header */}
         <Box sx={{

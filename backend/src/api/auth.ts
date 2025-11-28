@@ -3,86 +3,76 @@ import { Router } from 'express';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { generateToken } from '../utils/jwt';
+import { validate } from '../middlewares/validate';
+import { registerSchema, loginSchema } from '../schemas/auth.schema';
+import rateLimit from 'express-rate-limit'; // Đừng quên import rate-limit
 
 const prisma = new PrismaClient();
 const router = Router();
 
+// === Cấu hình Rate Limit cho Login ===
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 phút
+  max: 10, // Giới hạn 10 lần thử
+  message: 'Quá nhiều lần thử đăng nhập, vui lòng thử lại sau 15 phút',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 // === Endpoint Đăng ký (Register) ===
-router.post('/register', async (req, res) => {
-  try {
-    const { email, password, name } = req.body;
+// Không cần try...catch
+router.post('/register', validate(registerSchema), async (req, res) => {
+  const { email, password, name } = req.body;
 
-    // 1. Validate input (đơn giản)
-    if (!email || !password || !name) {
-      return res.status(400).json({ message: 'Email, password, and name are required' });
-    }
-
-    // 2. Kiểm tra email đã tồn tại chưa
-    const existingUser = await prisma.user.findUnique({ where: { email } });
-    if (existingUser) {
-      return res.status(409).json({ message: 'Email already exists' });
-    }
-
-    // 3. Hash mật khẩu
-    const hashedPassword = await bcrypt.hash(password, 10); // 10 là salt rounds
-
-    // 4. Lưu người dùng mới vào database
-    const user = await prisma.user.create({
-      data: {
-        email,
-        name,
-        password: hashedPassword,
-      },
-    });
-
-    // 5. Tạo JWT token
-    const token = generateToken(user.id);
-
-    // 6. Trả về thông tin người dùng (loại bỏ mật khẩu) và token
-    res.status(201).json({
-      token,
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-      },
-    });
-  } catch (error) {
-    res.status(500).json({ message: 'Internal server error' });
+  const existingUser = await prisma.user.findUnique({ where: { email } });
+  if (existingUser) {
+    // Lỗi 409 (Conflict) là lỗi logic, không phải lỗi 500
+    // nên chúng ta chủ động trả về
+    return res.status(409).json({ message: 'Email already exists' });
   }
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  const user = await prisma.user.create({
+    data: {
+      email,
+      name,
+      password: hashedPassword,
+    },
+  });
+
+  const token = generateToken(user.id);
+
+  res.status(201).json({
+    token,
+    user: {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+    },
+  });
 });
 
 // === Endpoint Đăng nhập (Login) ===
-router.post('/login', async (req, res) => {
-  try {
-    const { email, password } = req.body;
+// Đã sửa thành 'loginSchema' và thêm 'loginLimiter'
+// Không cần try...catch
+router.post('/login', loginLimiter, validate(loginSchema), async (req, res) => {
+  const { email, password } = req.body;
 
-    // 1. Validate input
-    if (!email || !password) {
-      return res.status(400).json({ message: 'Email and password are required' });
-    }
-
-    // 2. Tìm người dùng bằng email
-    const user = await prisma.user.findUnique({ where: { email } });
-    if (!user) {
-      // Chú ý: Không nên báo "User not found" để tránh lộ thông tin
-      return res.status(401).json({ message: 'Invalid credentials' });
-    }
-
-    // 3. So sánh mật khẩu
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      return res.status(401).json({ message: 'Invalid credentials' });
-    }
-
-    // 4. Nếu khớp, tạo JWT token
-    const token = generateToken(user.id);
-
-    // 5. Trả về token
-    res.status(200).json({ token });
-  } catch (error) {
-    res.status(500).json({ message: 'Internal server error' });
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user) {
+    // Lỗi 401 (Unauthorized) là lỗi logic, ta chủ động trả về
+    return res.status(401).json({ message: 'Invalid credentials' });
   }
+
+  const isPasswordValid = await bcrypt.compare(password, user.password);
+  if (!isPasswordValid) {
+    // Lỗi 401 là lỗi logic
+    return res.status(401).json({ message: 'Invalid credentials' });
+  }
+
+  const token = generateToken(user.id);
+  res.status(200).json({ token });
 });
 
 export default router;
