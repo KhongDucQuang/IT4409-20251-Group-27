@@ -4,8 +4,6 @@ import NoteAddIcon from '@mui/icons-material/NoteAdd'
 import Button from '@mui/material/Button'
 import { SortableContext, horizontalListSortingStrategy } from '@dnd-kit/sortable'
 
-import { SortableContext, horizontalListSortingStrategy } from '@dnd-kit/sortable'
-
 function ListColumns({ columns }) {
   /**
    * Thằng SortableContext yêu cầu items phải là một mảng dạng ['id-1', 'id-2', ...]
