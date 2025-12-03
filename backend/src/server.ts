@@ -17,7 +17,10 @@ import checklistItemsRouter from './api/checklistItems'; // <-- THÊM DÒNG NÀY
 import notificationsRouter from './api/notifications';
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:5173', // Hoặc '*' để cho phép tất cả (chỉ dùng khi dev)
+  credentials: true, // Cho phép gửi cookie/token
+}));
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 // === Gắn các router vào ứng dụng ===

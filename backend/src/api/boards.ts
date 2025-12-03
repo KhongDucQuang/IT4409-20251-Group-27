@@ -326,5 +326,103 @@ router.get('/:boardId/activities', checkBoardMembership, async (req, res) => {
   }
 });
 
+// PUT /api/boards/:boardId/move_list - Cập nhật thứ tự các List trong Board
+router.put('/:boardId/move_list', checkBoardMembership, async (req, res) => {
+  const { boardId } = req.params;
+  const { listOrderIds } = req.body; // Mảng chứa ID các list theo thứ tự mới: ["id1", "id3", "id2"]
+
+  if (!listOrderIds || !Array.isArray(listOrderIds)) {
+    return res.status(400).json({ message: 'listOrderIds phải là một mảng ID' });
+  }
+
+  try {
+    // Dùng Transaction để đảm bảo tất cả đều được cập nhật hoặc không cái nào cả
+    const updatePromises = listOrderIds.map((listId: string, index: number) => {
+      return prisma.list.update({
+        where: { 
+            id: listId,
+            boardId: boardId // Đảm bảo list thuộc về board này
+        },
+        data: { position: index + 1 }, // Cập nhật position: 1, 2, 3...
+      });
+    });
+
+    await prisma.$transaction(updatePromises);
+
+    res.status(200).json({ message: 'Cập nhật vị trí danh sách thành công' });
+  } catch (error) {
+    res.status(500).json({ message: 'Lỗi cập nhật vị trí' });
+  }
+});
+
+// backend/src/api/boards.ts
+
+// ... (API move_list ở trên)
+
+// PUT /api/boards/:boardId/move_card - Cập nhật vị trí Card (Cùng cột hoặc Khác cột)
+router.put('/:boardId/move_card', checkBoardMembership, async (req, res) => {
+  const { boardId } = req.params;
+  const { 
+    currentCardId, 
+    prevColumnId, 
+    prevCardOrderIds, 
+    nextColumnId, 
+    nextCardOrderIds 
+  } = req.body;
+
+  try {
+    // 1. Cập nhật cột chứa card (nếu di chuyển sang cột khác)
+    if (prevColumnId !== nextColumnId) {
+       await prisma.card.update({
+         where: { id: currentCardId },
+         data: { 
+           listId: nextColumnId,
+           updatedAt: new Date() // Cập nhật thời gian sửa
+         } 
+       });
+    }
+
+    // 2. Cập nhật lại vị trí (position) cho các card trong cột ĐÍCH (nextColumn)
+    // Chúng ta chỉ cần quan tâm cột đích vì cột cũ dù hổng lỗ thì thứ tự position tương đối vẫn đúng
+    // Hoặc để chắc ăn, ta cập nhật cả 2 cột.
+    
+    // Logic tối ưu: Chỉ cập nhật những gì cần thiết.
+    // Nhưng để đơn giản và tránh lỗi: Ta sẽ cập nhật lại position cho TOÀN BỘ card trong các cột bị ảnh hưởng.
+    
+    const updatePromises = [];
+
+    // Cập nhật cột mới (hoặc cột hiện tại nếu không đổi cột)
+    if (nextCardOrderIds && nextCardOrderIds.length > 0) {
+        nextCardOrderIds.forEach((cardId: string, index: number) => {
+            updatePromises.push(
+                prisma.card.update({
+                    where: { id: cardId },
+                    data: { position: index + 1, listId: nextColumnId }
+                })
+            );
+        });
+    }
+
+    // Nếu khác cột, ta cũng nên cập nhật lại cột cũ để position của nó liền mạch (1,2,3...) 
+    // tránh việc position nhảy cóc (1, 3, 4) gây khó khăn cho lần sau.
+    if (prevColumnId !== nextColumnId && prevCardOrderIds && prevCardOrderIds.length > 0) {
+        prevCardOrderIds.forEach((cardId: string, index: number) => {
+            updatePromises.push(
+                prisma.card.update({
+                    where: { id: cardId },
+                    data: { position: index + 1, listId: prevColumnId }
+                })
+            );
+        });
+    }
+
+    await prisma.$transaction(updatePromises);
+
+    res.status(200).json({ message: 'Cập nhật vị trí thẻ thành công' });
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ message: 'Lỗi cập nhật vị trí thẻ' });
+  }
+});
 
 export default router;
