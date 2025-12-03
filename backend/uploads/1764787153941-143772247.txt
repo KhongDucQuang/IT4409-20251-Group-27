@@ -1,0 +1,8 @@
+schedule
+kafka-python
+selenium
+webdriver-manager
+requests
+selenium
+
+# Thêm các thư viện khác nếu crawler của bạn cần
