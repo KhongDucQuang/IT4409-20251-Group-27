@@ -11,7 +11,7 @@ import AttachmentIcon from '@mui/icons-material/Attachment'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 
-function Card({ card }) {
+function Card({ card, onCardClick }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: card._id,
     data: { ...card }
@@ -29,6 +29,13 @@ function Card({ card }) {
   const shouldShowCardActions = () => {
     return !!card?.memberIds?.length || !!card?.comments?.length || !!card?.attachments?.length
   }
+
+  const handleClick = () => {
+    // Gọi hàm xử lý được truyền từ trên xuống, truyền data của Card đó
+    if (onCardClick) {
+      onCardClick(card)
+    }
+  }
   return (
     <MuiCard
       ref={setNodeRef}
@@ -40,7 +47,9 @@ function Card({ card }) {
         boxShadow: '0 1px 1px rgba(0, 0, 0, 0.2)',
         overflow: 'unset',
         display: card?.FE_PlaceholderCard ? 'none' : 'block'
-      }}>
+      }}
+      onClick={handleClick}
+      >
       {card?.cover && <CardMedia sx={{ height: 140 }} image={card?.cover} />}
       <CardContent sx={{ p: 1.5, '&:last-child': { p: 1.5 } }}>
         <Typography> {card?.title} </Typography>

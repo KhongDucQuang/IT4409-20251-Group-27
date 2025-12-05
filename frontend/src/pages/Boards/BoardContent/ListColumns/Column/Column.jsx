@@ -20,6 +20,7 @@ import ListCards from './ListCards/ListCards'
 import { mapOrder } from '~/utils/sorts'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+import CardDetailModal from './ListCards/Card/CardDetail/CardDetailModal'
 
 function Column({ column }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
@@ -48,9 +49,23 @@ function Column({ column }) {
     setAnchorEl(null)
   }
   const orderedCards = mapOrder(column?.cards, column?.cardOrderIds, '_id')
-  // Phải bọc div ở đây vì vấn đề chiều cao của column khi kéo thả sẽ có bug flickering
+
+  const [openCardDetail, setOpenCardDetail] = React.useState(false)
+  const [selectedCard, setSelectedCard] = React.useState(null)
+  
+  // Hàm này được truyền vào ListCards
+  const handleOpenCardDetail = (card) => {
+    setSelectedCard(card) // Lưu Card được chọn
+    setOpenCardDetail(true) // Mở Modal
+  }
+
+  const handleCloseCardDetail = () => {
+    setOpenCardDetail(false) // Đóng Modal
+    setSelectedCard(null) // Xóa dữ liệu Card đã chọn
+  }
   return (
-    <div
+    // Phải bọc div ở đây vì vấn đề chiều cao của column khi kéo thả sẽ có bug flickering
+    <div 
       ref={setNodeRef}
       style={dndKitColumnStyles}
       {...attributes}
@@ -136,8 +151,16 @@ function Column({ column }) {
         </Box>
 
         {/* Box List Card*/}
-        <ListCards cards={orderedCards}/>
+        <ListCards cards={orderedCards} onCardClick={handleOpenCardDetail}/>
 
+        {/* 2. Render Modal/Dialog */}
+        {selectedCard && (
+          <CardDetailModal 
+            open={openCardDetail} 
+            onClose={handleCloseCardDetail} 
+            card={selectedCard} 
+          />
+        )}
         {/* Box Column Footer */}
         <Box sx={{
           height: (theme) => theme.trello.columnFooterHeight,
