@@ -10,7 +10,7 @@ function Boards() {
   const [boards, setBoards] = useState([]);
   const [metadata, setMetadata] = useState(null);
   const navigate = useNavigate();
-  
+  const [searchValue, setSearchValue] = useState('')
   // State quản lý modal tạo board
   const [openCreateModal, setOpenCreateModal] = useState(false);
 
@@ -25,7 +25,10 @@ function Boards() {
 
   return (
     <Container disableGutters maxWidth={false} sx={{ height: '100vh' }}>
-      <AppBar />
+      <AppBar 
+        searchValue={searchValue}
+        setSearchValue={setSearchValue}
+      />
       
       <Container sx={{ marginTop: '20px' }}>
         <Typography variant="h4" sx={{ mb: 3, fontWeight: 'bold' }}>
