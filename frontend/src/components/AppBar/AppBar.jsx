@@ -1,4 +1,3 @@
-// src/components/AppBar/AppBar.jsx
 import { useState } from 'react'
 import ModeSelect from '~/components/ModeSelect/ModeSelect'
 import Box from '@mui/material/Box'
@@ -24,9 +23,8 @@ import Notifications from './Notifications/Notifications'
 // Import Modal Tạo Board
 import CreateBoardModal from '~/components/Modal/CreateBoardModal/CreateBoardModal'
 
-function AppBar() {
-  const [searchValue, setSearchValue] = useState('')
-  
+// 👇 NHẬN PROPS TỪ CHA (searchValue, setSearchValue)
+function AppBar({ searchValue, setSearchValue }) {
   // State quản lý modal tạo board
   const [openCreateModal, setOpenCreateModal] = useState(false)
 
@@ -76,10 +74,12 @@ function AppBar() {
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
         <TextField
           id="outlined-search"
-          label="Search..."
+          label="Search cards..."
           type="text"
           size="small"
+          // 👇 Dùng giá trị từ props
           value={searchValue}
+          // 👇 Gọi hàm từ props
           onChange={(e) => setSearchValue(e.target.value)}
           InputProps={{
             startAdornment:(

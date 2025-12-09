@@ -5,17 +5,19 @@ import AppBar from '~/components/AppBar/AppBar';
 import BoardBar from './BoardBar/BoardBar';
 import BoardContent from './BoardContent/BoardContent';
 import { mapOrder } from '~/utils/sorts';
-import { isEmpty } from 'lodash';
 
 // 1. Import useParams để lấy ID từ URL
 import { useParams } from 'react-router-dom';
 
 // Import các API
 import { fetchBoardDetailsAPI, createNewColumnAPI, createNewCardAPI, deleteColumnAPI } from '~/apis/boardApi';
-import { generatePlaceholderCard } from '~/utils/formatter';
-import { useConfirm } from 'material-ui-confirm'
+import { toast } from 'react-toastify';
+
 // Import Modal
 import ActiveCardModal from '~/components/Modal/ActiveCardModal/ActiveCardModal';
+
+// 👇 IMPORT SOCKET
+import { socket } from '~/socket';
 
 function Board() {
   const [board, setBoard] = useState(null);
@@ -24,33 +26,85 @@ function Board() {
   const [activeCard, setActiveCard] = useState(null);
   const [isShowModalActiveCard, setIsShowModalActiveCard] = useState(false);
 
+  // 3. State quản lý Tìm kiếm (Search)
+  const [searchValue, setSearchValue] = useState('');
+
   // Lấy boardId từ URL (do router định nghĩa /boards/:boardId)
   const { boardId } = useParams();
 
   useEffect(() => {
-    // Gọi API lấy thông tin board dựa vào ID trên URL
-    fetchBoardDetailsAPI(boardId).then(boardData => {
-      setBoard(boardData);
-      
-      // Sắp xếp thứ tự các cột (nếu cần thiết, dù backend đã sort)
-      boardData.columns = mapOrder(boardData.columns, boardData.columnOrderIds, '_id');
-      setBoard(boardData);
-    });
+    // Tách hàm gọi API ra để tái sử dụng
+    const fetchBoardData = () => {
+      fetchBoardDetailsAPI(boardId).then(boardData => {
+        // Sắp xếp thứ tự các cột
+        boardData.columns = mapOrder(boardData.columns, boardData.columnOrderIds, '_id');
+        setBoard(boardData);
+      });
+    };
+
+    // 1. Gọi API lấy dữ liệu lần đầu khi vào trang
+    fetchBoardData();
+
+    // 2. Cấu hình Real-time (Socket.IO)
+    console.log('👋 [CLIENT B] Xin join room:', boardId);
+    socket.emit('join_board', boardId);
+
+    // 👇 Hàm xử lý reload có độ trễ 200ms để tránh Race Condition (Database chưa lưu kịp)
+    const onReloadBoard = (data) => {
+        console.log('🔔 [CLIENT B] Đã nhận được lệnh RELOAD!', data);
+        setTimeout(() => {
+            fetchBoardData();
+        }, 200); 
+    };
+
+    // Lắng nghe các sự kiện update từ Server
+    // 👇 SỬA Ở ĐÂY: Dùng hàm onReloadBoard thay vì fetchBoardData trực tiếp
+    socket.on('BE_UPDATE_LIST_ORDER', onReloadBoard);
+    socket.on('BE_UPDATE_CARD_ORDER', onReloadBoard);
+    socket.on('BE_RELOAD_BOARD', onReloadBoard);
+
+    // Cleanup function: Gỡ sự kiện khi component unmount
+    return () => {
+      socket.off('BE_UPDATE_LIST_ORDER', onReloadBoard);
+      socket.off('BE_UPDATE_CARD_ORDER', onReloadBoard);
+      socket.off('BE_RELOAD_BOARD', onReloadBoard);
+    };
+
   }, [boardId]);
 
-  // 3. Hàm xử lý mở Modal (truyền xuống dưới cho Card click)
+  // 👇 THÊM ĐOẠN NÀY: Tự động cập nhật Modal khi Board thay đổi (Fix lỗi User B đang mở modal mà không thấy update)
+  useEffect(() => {
+    if (activeCard && board) {
+        // Tìm thẻ đang mở trong dữ liệu board mới nhất
+        let newActiveCard = null;
+        for (let column of board.columns) {
+            const foundCard = column.cards?.find(c => c._id === activeCard._id);
+            if (foundCard) {
+                newActiveCard = foundCard;
+                break;
+            }
+        }
+        // Nếu tìm thấy -> Cập nhật state activeCard
+        if (newActiveCard) {
+            setActiveCard(newActiveCard);
+        }
+    }
+  }, [board]); 
+
+  // --- CÁC HÀM XỬ LÝ MODAL ---
   const handleSetActiveCard = (card) => {
     setActiveCard(card);
     setIsShowModalActiveCard(true);
   };
 
-  // 4. Hàm đóng Modal
   const handleCloseModal = () => {
     setIsShowModalActiveCard(false);
     setActiveCard(null);
   };
 
-  // Hàm xử lý tạo Column mới
+  // --- CÁC HÀM XỬ LÝ DỮ LIỆU (CRUD) ---
+  
+  // 1. Tạo Column mới
   const createNewColumn = async (newColumnData) => {
     const createdColumn = await createNewColumnAPI({
       ...newColumnData,
@@ -61,9 +115,10 @@ function Board() {
     newBoard.columns.push(createdColumn);
     newBoard.columnOrderIds.push(createdColumn._id);
     setBoard(newBoard);
+    socket.emit('FE_UPDATE_BOARD', { boardId: board._id })
   };
 
-  // Hàm xử lý tạo Card mới
+  // 2. Tạo Card mới
   const createNewCard = async (newCardData) => {
     const createdCard = await createNewCardAPI({
       title: newCardData.title,
@@ -83,23 +138,24 @@ function Board() {
       }
     }
     setBoard(newBoard);
+    socket.emit('FE_UPDATE_BOARD', { boardId: board._id })
   };
 
-  // Hàm xử lý xóa Column
+  // 3. Xóa Column
   const handleDeleteColumn = async (columnId) => {
-    // 1. Cập nhật UI ngay lập tức (Optimistic UI) cho mượt
+    // Cập nhật UI ngay lập tức (Optimistic UI)
     const newBoard = { ...board }
     newBoard.columns = newBoard.columns.filter(c => c._id !== columnId)
     newBoard.columnOrderIds = newBoard.columnOrderIds.filter(_id => _id !== columnId)
     setBoard(newBoard)
 
-    // 2. Gọi API
+    // Gọi API
     try {
       await deleteColumnAPI(columnId)
       toast.success('Đã xóa cột thành công')
+      socket.emit('FE_UPDATE_BOARD', { boardId: board._id })
     } catch (error) {
       toast.error('Lỗi xóa cột')
-      // Nếu lỗi thì phải rollback lại state (nâng cao, tạm thời bỏ qua)
     }
   }
 
@@ -113,24 +169,33 @@ function Board() {
 
   return (
     <Container disableGutters maxWidth={false} sx={{ height: '100vh' }}>
-      <AppBar />
+      {/* Truyền props tìm kiếm xuống AppBar */}
+      <AppBar 
+        searchValue={searchValue}
+        setSearchValue={setSearchValue}
+      />
+      
       <BoardBar board={board} />
       
       <BoardContent
         board={board}
         createNewColumn={createNewColumn}
         createNewCard={createNewCard}
-        // 5. Truyền hàm mở modal xuống BoardContent
+        
+        // Truyền hàm mở modal & xóa cột
         handleSetActiveCard={handleSetActiveCard}
         handleDeleteColumn={handleDeleteColumn}
+        
+        // Truyền từ khóa tìm kiếm xuống để lọc card
+        searchValue={searchValue} 
       />
 
-      {/* 6. Hiển thị Modal tại đây */}
+      {/* Hiển thị Modal Active Card */}
       <ActiveCardModal 
         activeCard={activeCard}
         isOpen={isShowModalActiveCard}
         onClose={handleCloseModal}
-        boardMembers={board?.members}
+        boardMembers={board?.members} 
       />
     </Container>
   );

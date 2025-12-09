@@ -1,35 +1,70 @@
+// src/components/AppBar/Notifications/Notifications.jsx
 import { useState, useEffect } from 'react'
 import { Badge, Box, IconButton, Tooltip, Menu, MenuItem, Typography, Button, Divider, Avatar } from '@mui/material'
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone'
 import DoneAllIcon from '@mui/icons-material/DoneAll'
 import { fetchNotificationsAPI, markNotificationAsReadAPI, markAllAsReadAPI } from '~/apis/notificationApi'
-import moment from 'moment' // Cần cài moment để format thời gian (hoặc dùng new Date().toLocaleString())
+import moment from 'moment'
+
+// 1. Import Socket
+import { socket } from '~/socket'
 
 function Notifications() {
   const [notifications, setNotifications] = useState([])
   const [anchorEl, setAnchorEl] = useState(null)
   const open = Boolean(anchorEl)
 
-  // Hàm fetch dữ liệu
+  // Hàm fetch dữ liệu từ API
   const fetchNotifications = async () => {
     try {
-      // Backend trả về: { data: [...], metadata: {...} } do ta đã phân trang
       const res = await fetchNotificationsAPI()
-      // Nếu backend trả về mảng trực tiếp thì dùng res, nếu trả về object phân trang thì dùng res.data
       setNotifications(Array.isArray(res) ? res : res.data)
     } catch (error) {
       console.error('Failed to fetch notifications')
     }
   }
 
-  // Gọi API khi component render lần đầu
+  // 2. Cấu hình useEffect để Fetch data và Lắng nghe Socket
+  // ... imports giữ nguyên
+
   useEffect(() => {
     fetchNotifications()
+
+    // Lấy thông tin user
+    const userString = localStorage.getItem('userInfo')
+    let currentUser = null
+
+    // 👇 SỬA ĐOẠN NÀY: Kiểm tra kỹ hơn trước khi parse
+    if (userString && userString !== 'undefined') {
+        try {
+            currentUser = JSON.parse(userString)
+        } catch (e) { 
+            console.error('Error parsing user info', e)
+            // Nếu dữ liệu lỗi, xóa luôn để tránh crash lần sau
+            localStorage.removeItem('userInfo')
+        }
+    }
+
+    if (currentUser) {
+        socket.emit('join_user_room', currentUser.id)
+    }
+
+    const handleNewNotification = () => {
+        fetchNotifications()
+    }
+
+    socket.on('BE_NEW_NOTIFICATION', handleNewNotification)
+
+    return () => {
+        socket.off('BE_NEW_NOTIFICATION', handleNewNotification)
+    }
   }, [])
+  
+  // ... phần còn lại giữ nguyên
 
   const handleClickNotificationIcon = (event) => {
     setAnchorEl(event.currentTarget)
-    // Khi mở menu, có thể fetch lại cho mới
+    // Khi mở menu, fetch lại cho chắc chắn mới nhất
     fetchNotifications()
   }
 
@@ -118,8 +153,8 @@ function Notifications() {
                     display: 'flex', 
                     alignItems: 'flex-start', 
                     gap: 2, 
-                    whiteSpace: 'normal', // Cho phép xuống dòng
-                    bgcolor: notif.isRead ? 'transparent' : '#e3f2fd' // Xanh nhạt nếu chưa đọc
+                    whiteSpace: 'normal',
+                    bgcolor: notif.isRead ? 'transparent' : '#e3f2fd'
                 }}
                 onClick={() => handleMarkAsRead(notif)}
              >
@@ -131,7 +166,6 @@ function Notifications() {
                         {notif.content}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
-                        {/* Dùng moment để hiện '5 minutes ago' hoặc new Date */}
                         {new Date(notif.createdAt).toLocaleString()}
                     </Typography>
                 </Box>

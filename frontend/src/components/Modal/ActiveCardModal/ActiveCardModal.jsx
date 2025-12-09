@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Modal, Box, Typography, Grid, Stack, Button, TextField, Avatar, AvatarGroup, Popover, List, ListItem, ListItemButton, ListItemAvatar, ListItemText, Checkbox, Divider } from '@mui/material'
 import CreditCardIcon from '@mui/icons-material/CreditCard'
 import SubjectIcon from '@mui/icons-material/Subject'
@@ -21,6 +21,7 @@ import {
   createChecklistItemAPI, updateChecklistItemAPI, deleteChecklistItemAPI 
 } from '~/apis/cardApi';
 import LinearProgress from '@mui/material/LinearProgress'; // Thanh tiến độ
+import { socket } from '~/socket'
 
 const style = {
   position: 'absolute',
@@ -48,7 +49,11 @@ function ActiveCardModal({ activeCard, isOpen, onClose, boardMembers }) {
   const [forceUpdate, setForceUpdate] = useState(false)
   const confirm = useConfirm()
   const [title, setTitle] = useState(activeCard?.title || '')
-  // Ref cho input file
+  useEffect(() => {
+      // Dùng optional chaining (?.) và OR (||) để tránh lỗi null
+      setTitle(activeCard?.title || '')
+      setDescription(activeCard?.description || '')
+  }, [activeCard])
   const fileInputRef = useRef(null)
 
   if (!activeCard) return null
@@ -61,6 +66,9 @@ function ActiveCardModal({ activeCard, isOpen, onClose, boardMembers }) {
       if (!activeCard.comments) activeCard.comments = []
       activeCard.comments.unshift(newComment)
       setComment('')
+      
+      // ✅ CHỈ BẮN KHI THÀNH CÔNG
+      socket.emit('FE_UPDATE_BOARD', { boardId: activeCard.boardId });
     } catch (error) {
       toast.error('Gửi bình luận thất bại')
     }
@@ -70,20 +78,26 @@ function ActiveCardModal({ activeCard, isOpen, onClose, boardMembers }) {
     if (title === activeCard.title) return
     try {
       await updateCardDetailsAPI(activeCard._id, { title })
-      // Cập nhật UI local (Hack nhẹ để hiển thị ngay)
       activeCard.title = title 
       toast.success('Đổi tên thẻ thành công!')
+      
+      // 👇 CHÈN VÀO ĐÂY
+      socket.emit('FE_UPDATE_BOARD', { boardId: activeCard.boardId })
+
     } catch (error) {
       toast.error('Lỗi đổi tên thẻ')
     }
   }
 
-  // --- XỬ LÝ DESCRIPTION ---
   const handleUpdateDescription = async () => {
     if (description === activeCard.description) return
     try {
       await updateCardDetailsAPI(activeCard._id, { description })
       toast.success('Cập nhật mô tả thành công!')
+      
+      // 👇 CHÈN VÀO ĐÂY
+      socket.emit('FE_UPDATE_BOARD', { boardId: activeCard.boardId })
+
     } catch (error) {
       toast.error('Lỗi cập nhật mô tả')
     }
@@ -96,20 +110,38 @@ function ActiveCardModal({ activeCard, isOpen, onClose, boardMembers }) {
   const handleToggleMember = async (userId) => {
     try {
       const isAssigned = activeCard.assignees?.some(a => a.userId === userId)
+
       if (isAssigned) {
+        // Hủy gán
         await unassignMemberAPI(activeCard._id, userId)
         activeCard.assignees = activeCard.assignees.filter(a => a.userId !== userId)
         toast.info('Đã hủy gán thành viên')
+        
+        // ✅ Bắn socket update board (mất avatar)
+        socket.emit('FE_UPDATE_BOARD', { boardId: activeCard.boardId })
+
       } else {
+        // Gán thành viên
         await assignMemberAPI(activeCard._id, userId)
+        
         const userToAdd = boardMembers.find(m => m.user.id === userId)?.user
         if (userToAdd) {
             if (!activeCard.assignees) activeCard.assignees = []
             activeCard.assignees.push({ userId: userToAdd.id, user: userToAdd })
         }
         toast.success('Đã gán thành viên thành công')
+
+        // ✅ Socket 1: Update board (hiện avatar)
+        socket.emit('FE_UPDATE_BOARD', { boardId: activeCard.boardId })
+
+        // ✅ Socket 2: Thông báo riêng
+        socket.emit('FE_SEND_NOTIFICATION', { 
+            recipientId: userId, 
+            boardId: activeCard.boardId 
+        })
       }
-      setComment(prev => prev) // Force update UI
+      setComment(prev => prev) 
+
     } catch (error) {
       toast.error('Lỗi cập nhật thành viên')
     }
@@ -125,7 +157,10 @@ function ActiveCardModal({ activeCard, isOpen, onClose, boardMembers }) {
       activeCard.attachments.push(newAttachment)
       toast.success('Upload file thành công!')
       event.target.value = ''
-      setComment(prev => prev) // Force update UI
+      setComment(prev => prev)
+      
+      // ✅
+      socket.emit('FE_UPDATE_BOARD', { boardId: activeCard.boardId });
     } catch (error) {
       toast.error('Lỗi upload file')
     }
@@ -140,31 +175,38 @@ function ActiveCardModal({ activeCard, isOpen, onClose, boardMembers }) {
       cancellationText: 'Hủy',
     })
       .then(async () => {
-        // Khi người dùng bấm "Xác nhận"
         try {
           await deleteCardAPI(activeCard._id)
           toast.success('Đã xóa thẻ thành công')
-          onClose() // Đóng modal trước
           
-          // Reload lại trang để cập nhật Board
-          // (Sau này tối ưu có thể dùng state updates thay vì reload)
-          window.location.reload()
+          // ✅ Bắn socket trước khi đóng modal
+          socket.emit('FE_UPDATE_BOARD', { boardId: activeCard.boardId });
+
+          onClose() 
+          // Không reload trang nữa vì socket ở _id.jsx sẽ lo việc này
         } catch (error) {
           toast.error('Lỗi xóa thẻ')
         }
       })
-      .catch(() => {
-        // Khi người dùng bấm "Hủy" -> Không làm gì cả
-      })
+      .catch(() => {})
   }
 
   // --- XỬ LÝ CHECKLIST ---
   const handleAddChecklist = async () => {
     try {
+      // 1. Gọi API tạo mới
       const newChecklist = await createChecklistAPI(activeCard._id, 'To do');
+      
+      // 2. Cập nhật dữ liệu Local cho User A thấy ngay
       if (!activeCard.checklists) activeCard.checklists = [];
       activeCard.checklists.push({ ...newChecklist, items: [] });
-      setComment(prev => prev); // Cập nhật lại giao diện
+      
+      // 👇 QUAN TRỌNG: Ép giao diện vẽ lại ngay lập tức
+      setForceUpdate(prev => !prev); 
+
+      // 3. Bắn socket cho User B
+      socket.emit('FE_UPDATE_BOARD', { boardId: activeCard.boardId });
+
     } catch (error) {
       toast.error('Lỗi tạo checklist');
     }
@@ -172,14 +214,23 @@ function ActiveCardModal({ activeCard, isOpen, onClose, boardMembers }) {
 
   const handleDeleteChecklist = async (checklistId) => {
     try {
+      // 1. Gọi API xóa
       await deleteChecklistAPI(checklistId);
-      activeCard.checklists = activeCard.checklists.filter(c => c.id !== checklistId);
-      setComment(prev => prev);
+      
+      // 2. Cập nhật dữ liệu Local (Lọc bỏ cái vừa xóa)
+      // Lưu ý: Kiểm tra kỹ xem backend trả về là "id" hay "_id". Thường là "id" nếu bạn đã map, hoặc "_id" nếu là raw Mongo.
+      // Ở đây mình dùng logic an toàn: activeCard.checklists đang hiển thị cái gì thì lọc theo cái đó.
+      activeCard.checklists = activeCard.checklists.filter(c => c.id !== checklistId && c._id !== checklistId);
+      
+      // 👇 QUAN TRỌNG: Ép giao diện vẽ lại ngay lập tức
+      setForceUpdate(prev => !prev);
+
+      // 3. Bắn socket cho User B
+      socket.emit('FE_UPDATE_BOARD', { boardId: activeCard.boardId });
     } catch (error) {
       toast.error('Lỗi xóa checklist');
     }
   };
-
   // --- XỬ LÝ CHECKLIST ITEMS ---
   
   // 1. Hàm gọi API thêm item (Logic gốc)
@@ -191,7 +242,10 @@ function ActiveCardModal({ activeCard, isOpen, onClose, boardMembers }) {
           if (!checklist.items) checklist.items = [];
           checklist.items.push(newItem);
       }
-      setComment(prev => prev); // Cập nhật giao diện
+      setComment(prev => prev);
+      
+      // ✅
+      socket.emit('FE_UPDATE_BOARD', { boardId: activeCard.boardId });
     } catch (error) {
        toast.error('Lỗi thêm việc');
     }
@@ -199,62 +253,63 @@ function ActiveCardModal({ activeCard, isOpen, onClose, boardMembers }) {
 
   // 2. Hàm xử lý sự kiện Submit Form (Dùng cho cả nút Thêm và phím Enter)
   const handleAddItemSubmit = async (checklistId) => {
-    if (!newItemContent.trim()) return; // Chặn nếu chỉ nhập khoảng trắng
-    
-    // Gọi hàm thêm item
+    if (!newItemContent.trim()) return;
     await handleAddItem(checklistId, newItemContent);
-    
-    // Reset ô nhập để nhập cái tiếp theo
     setNewItemContent(''); 
-    // Không đóng form để người dùng nhập liên tục
+    // Không cần emit ở đây vì hàm handleAddItem đã emit rồi
   };
 
   // 3. Hàm tick chọn (Đã sửa Optimistic UI - Cập nhật ngay)
   // 3. Hàm tick chọn (Đã sửa lỗi không cập nhật ngay)
   const handleToggleItem = async (itemId, currentStatus) => {
-    // A. Cập nhật giao diện NGAY LẬP TỨC (Optimistic UI)
+    // Optimistic UI
     const newStatus = !currentStatus;
-    
-    // Tìm và update dữ liệu local
     activeCard.checklists.forEach(list => {
       const item = list.items.find(i => i.id === itemId);
       if (item) item.isCompleted = newStatus;
     });
-
-    // 👇 BẬT CÔNG TẮC ĐỂ ÉP REACT VẼ LẠI NGAY LẬP TỨC
     setForceUpdate(prev => !prev); 
 
-    // B. Gọi API cập nhật ngầm bên dưới
     try {
       await updateChecklistItemAPI(itemId, { isCompleted: newStatus });
+      
+      // ✅
+      socket.emit('FE_UPDATE_BOARD', { boardId: activeCard.boardId });
     } catch (error) {
        toast.error('Lỗi cập nhật trạng thái');
-       
-       // Nếu lỗi thì revert (quay xe) lại trạng thái cũ
+       // Rollback
        activeCard.checklists.forEach(list => {
         const item = list.items.find(i => i.id === itemId);
         if (item) item.isCompleted = currentStatus;
       });
-      setForceUpdate(prev => !prev); // Vẽ lại lần nữa để hiện lỗi
+      setForceUpdate(prev => !prev);
     }
   };
   
   const handleDeleteItem = async (itemId) => {
-     // 1. Xóa trên giao diện NGAY LẬP TỨC (Không chờ API)
-     activeCard.checklists.forEach(list => {
+     // 1. Optimistic UI: Xóa trên giao diện NGAY LẬP TỨC
+     // Sử dụng map để tạo mảng mới thay vì sửa trực tiếp, giúp React nhận biết thay đổi
+     const newChecklists = activeCard.checklists.map(list => {
        if (list.items) {
-         list.items = list.items.filter(i => i.id !== itemId);
+         return {
+           ...list,
+           items: list.items.filter(i => i.id !== itemId)
+         }
        }
+       return list;
      });
-     setForceUpdate(prev => !prev); // Vẽ lại giao diện ngay
+     
+     activeCard.checklists = newChecklists; // Gán lại mảng mới
+     setForceUpdate(prev => !prev); // Ép vẽ lại
 
      // 2. Gọi API xóa ngầm bên dưới
      try {
        await deleteChecklistItemAPI(itemId);
-       // Không cần làm gì thêm vì giao diện đã xóa rồi
+       
+       // 3. Bắn socket cho User B cập nhật
+       socket.emit('FE_UPDATE_BOARD', { boardId: activeCard.boardId });
      } catch (error) {
-        toast.error('Lỗi kết nối server, không thể xóa việc');
-        // (Tùy chọn) Nếu muốn kỹ tính, bạn có thể reload lại trang ở đây để hồi phục dữ liệu
+        toast.error('Lỗi xóa việc');
      }
   }
 
@@ -315,6 +370,7 @@ function ActiveCardModal({ activeCard, isOpen, onClose, boardMembers }) {
               <TextField
                 fullWidth multiline minRows={3}
                 placeholder="Add a more detailed description..."
+                variant="outlined"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 onBlur={handleUpdateDescription}

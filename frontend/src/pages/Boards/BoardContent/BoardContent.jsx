@@ -10,13 +10,13 @@ import Column from './ListColumns/Column/Column'
 import Card from './ListColumns/Column/ListCards/Card/Card'
 // 1. 👇 Import 2 API xử lý kéo thả
 import { updateBoardDetailsAPI, moveCardToDifferentColumnAPI } from '~/apis/boardApi'
-
 const ACTIVE_DRAG_ITEM_TYPE = {
   COLUMN: 'ACTIVE_DRAG_ITEM_TYPE_COLUMN',
   CARD: 'ACTIVE_DRAG_ITEM_TYPE_CARD'
 }
+import { socket } from '~/socket'
 
-function BoardContent({ board, createNewColumn, createNewCard, handleSetActiveCard, handleDeleteColumn }) {
+function BoardContent({ board, createNewColumn, createNewCard, handleSetActiveCard, handleDeleteColumn, searchValue }) {
   // Yêu cầu chuột di chuyển 10px thì mới kích hoạt event, fix trường hợp click bị gọi event
   // Nếu dùng PointerSensor mặc định thì phải kết hợp thuộc tính CSS touch-action: none ở những phần tử cần kéo thả - nma còn bug.
   // const pointerSensor = useSensor(PointerSensor, { activationConstraint: { distance: 10 } })
@@ -44,6 +44,21 @@ function BoardContent({ board, createNewColumn, createNewCard, handleSetActiveCa
   useEffect(() => {
     setOrderedColumns(mapOrder(board?.columns, board?.columnOrderIds, '_id'))
   }, [board])
+
+  const columnsToRender = searchValue
+    ? orderedColumns.map(column => {
+        const newColumn = cloneDeep(column)
+        
+        // Chỉ lọc nếu column có cards
+        if (newColumn.cards) {
+          newColumn.cards = newColumn.cards.filter(c => 
+            // Dùng Optional Chaining (?.) để không bị crash nếu title null
+            c?.title?.toLowerCase().includes(searchValue.toLowerCase())
+          )
+        }
+        return newColumn
+      })
+    : orderedColumns
 
   // Tìm một cái Column theo CardId
   const findColumnByCardId = (cardId) => {
@@ -190,7 +205,7 @@ function BoardContent({ board, createNewColumn, createNewCard, handleSetActiveCa
           activeDraggingCardData
         )
 
-        // 2. 👇 Gọi API khi kéo card SANG CỘT KHÁC
+        // 2. Gọi API khi kéo card SANG CỘT KHÁC
         moveCardToDifferentColumnAPI({
           currentCardId: activeDragItemId,
           prevColumnId: oldColumnWhenDraggingCard._id,
@@ -201,6 +216,9 @@ function BoardContent({ board, createNewColumn, createNewCard, handleSetActiveCa
           nextCardOrderIds: overColumn.cards.map(c => c._id),
           boardId: board._id
         })
+
+        // 👇 1. THÊM VÀO ĐÂY (Trường hợp kéo sang cột khác)
+        socket.emit('FE_UPDATE_BOARD', { boardId: board._id })
 
       } else {
         // Kéo thả card trong cùng một column
@@ -228,7 +246,7 @@ function BoardContent({ board, createNewColumn, createNewCard, handleSetActiveCa
           return nextColumns
         })
 
-        // 3. 👇 Gọi API khi kéo card TRONG CÙNG CỘT
+        // 3. Gọi API khi kéo card TRONG CÙNG CỘT
         moveCardToDifferentColumnAPI({
           currentCardId: activeDragItemId,
           prevColumnId: oldColumnWhenDraggingCard._id,
@@ -237,6 +255,9 @@ function BoardContent({ board, createNewColumn, createNewCard, handleSetActiveCa
           nextCardOrderIds: dndOrderedCardIds, // Thứ tự mới
           boardId: board._id
         })
+
+        // 👇 2. THÊM VÀO ĐÂY (Trường hợp kéo trong cùng cột)
+        socket.emit('FE_UPDATE_BOARD', { boardId: board._id })
       }
     }
 
@@ -256,10 +277,13 @@ function BoardContent({ board, createNewColumn, createNewCard, handleSetActiveCa
         // Cập nhật lại state columns ban đầu sau khi đã kéo thả
         setOrderedColumns(dndOrderedColumns)
 
-        // 4. 👇 Gọi API cập nhật vị trí COLUMN
+        // 4. Gọi API cập nhật vị trí COLUMN
         updateBoardDetailsAPI(board._id, { 
           listOrderIds: dndOrderedColumns.map(c => c._id) 
         })
+
+        // 👇 3. THÊM VÀO ĐÂY (Trường hợp kéo cột)
+        socket.emit('FE_UPDATE_BOARD', { boardId: board._id })
       }
     }
 
@@ -269,7 +293,6 @@ function BoardContent({ board, createNewColumn, createNewCard, handleSetActiveCa
     setActiveDragItemData(null)
     setOldColumnWhenDraggingCard(null)
   }
-
   /**
    * Animation khi thả phần tử - Test bằng cách kéo xong thả trực tiếp và nhìn phần giữ chỗ Overlay
    */
@@ -335,7 +358,7 @@ function BoardContent({ board, createNewColumn, createNewCard, handleSetActiveCa
         p: '10px 0'
       }}>
         <ListColumns 
-          columns={orderedColumns} 
+          columns={columnsToRender} 
           createNewColumn={createNewColumn}
           createNewCard={createNewCard}
           handleSetActiveCard={handleSetActiveCard}
