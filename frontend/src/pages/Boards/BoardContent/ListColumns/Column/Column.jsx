@@ -10,7 +10,7 @@ import ContentCopy from '@mui/icons-material/ContentCopy'
 import ContentPaste from '@mui/icons-material/ContentPaste'
 import Cloud from '@mui/icons-material/Cloud'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import React, { useState } from 'react' // <--- THÊM useState
+import React, { useState } from 'react'
 import Tooltip from '@mui/material/Tooltip'
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever'
 import AddCardIcon from '@mui/icons-material/AddCard'
@@ -22,9 +22,8 @@ import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import TextField from '@mui/material/TextField' // <--- THÊM
 import CloseIcon from '@mui/icons-material/Close' // <--- THÊM
-import { useConfirm } from 'material-ui-confirm'; // Import hook
+import { useConfirm } from 'material-ui-confirm' // Import hook
 
-// 1. Nhận thêm prop createNewCard
 function Column({ column, createNewCard, handleSetActiveCard, handleDeleteColumn }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: column._id,
@@ -40,8 +39,12 @@ function Column({ column, createNewCard, handleSetActiveCard, handleDeleteColumn
 
   const [anchorEl, setAnchorEl] = React.useState(null)
   const open = Boolean(anchorEl)
-  const handleClick = (event) => setAnchorEl(event.currentTarget)
-  const handleClose = () => setAnchorEl(null)
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget)
+  }
+  const handleClose = () => {
+    setAnchorEl(null)
+  }
 
   // --- LOGIC MỚI: TẠO CARD ---
   const [openNewCardForm, setOpenNewCardForm] = useState(false)
@@ -58,22 +61,22 @@ function Column({ column, createNewCard, handleSetActiveCard, handleDeleteColumn
     toggleOpenNewCardForm()
     setNewCardTitle('')
   }
-  const confirm = useConfirm();
+  const confirm = useConfirm()
   const confirmDeleteColumn = () => {
     confirm({
       title: 'Xóa cột?',
       description: `Hành động này sẽ xóa vĩnh viễn cột "${column.title}" và toàn bộ thẻ bên trong!`,
       confirmationText: 'Xác nhận',
-      cancellationText: 'Hủy',
+      cancellationText: 'Hủy'
     })
       .then(() => {
         // Khi người dùng bấm "Xác nhận"
-        handleDeleteColumn(column._id);
+        handleDeleteColumn(column._id)
       })
       .catch(() => {
         // Khi người dùng bấm "Hủy" (Không làm gì cả)
-      });
-  };
+      })
+  }
   // ---------------------------
 
   const orderedCards = mapOrder(column?.cards, column?.cardOrderIds, '_id')
@@ -150,9 +153,9 @@ function Column({ column, createNewCard, handleSetActiveCard, handleDeleteColumn
           </Box>
         </Box>
 
-        {/* Box List Card */}
-        <ListCards 
-          cards={orderedCards} 
+        {/* Box List Card*/}
+        <ListCards
+          cards={orderedCards}
           handleSetActiveCard={handleSetActiveCard}
         />
 

@@ -1,10 +1,9 @@
 // src/components/AppBar/Notifications/Notifications.jsx
 import { useState, useEffect } from 'react'
-import { Badge, Box, IconButton, Tooltip, Menu, MenuItem, Typography, Button, Divider, Avatar } from '@mui/material'
+import { Badge, Box, IconButton, Tooltip, Menu, MenuItem, Typography, Divider, Avatar } from '@mui/material'
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone'
 import DoneAllIcon from '@mui/icons-material/DoneAll'
 import { fetchNotificationsAPI, markNotificationAsReadAPI, markAllAsReadAPI } from '~/apis/notificationApi'
-import moment from 'moment'
 
 // 1. Import Socket
 import { socket } from '~/socket'
@@ -36,30 +35,30 @@ function Notifications() {
 
     // 👇 SỬA ĐOẠN NÀY: Kiểm tra kỹ hơn trước khi parse
     if (userString && userString !== 'undefined') {
-        try {
-            currentUser = JSON.parse(userString)
-        } catch (e) { 
-            console.error('Error parsing user info', e)
-            // Nếu dữ liệu lỗi, xóa luôn để tránh crash lần sau
-            localStorage.removeItem('userInfo')
-        }
+      try {
+        currentUser = JSON.parse(userString)
+      } catch (e) {
+        console.error('Error parsing user info', e)
+        // Nếu dữ liệu lỗi, xóa luôn để tránh crash lần sau
+        localStorage.removeItem('userInfo')
+      }
     }
 
     if (currentUser) {
-        socket.emit('join_user_room', currentUser.id)
+      socket.emit('join_user_room', currentUser.id)
     }
 
     const handleNewNotification = () => {
-        fetchNotifications()
+      fetchNotifications()
     }
 
     socket.on('BE_NEW_NOTIFICATION', handleNewNotification)
 
     return () => {
-        socket.off('BE_NEW_NOTIFICATION', handleNewNotification)
+      socket.off('BE_NEW_NOTIFICATION', handleNewNotification)
     }
   }, [])
-  
+
   // ... phần còn lại giữ nguyên
 
   const handleClickNotificationIcon = (event) => {
@@ -74,15 +73,15 @@ function Notifications() {
 
   const handleMarkAsRead = async (notification) => {
     if (!notification.isRead) {
-        await markNotificationAsReadAPI(notification.id)
-        // Cập nhật UI local
-        setNotifications(prev => prev.map(n => n.id === notification.id ? { ...n, isRead: true } : n))
+      await markNotificationAsReadAPI(notification.id)
+      // Cập nhật UI local
+      setNotifications(prev => prev.map(n => n.id === notification.id ? { ...n, isRead: true } : n))
     }
   }
 
   const handleMarkAllAsRead = async () => {
-      await markAllAsReadAPI()
-      setNotifications(prev => prev.map(n => ({ ...n, isRead: true })))
+    await markAllAsReadAPI()
+    setNotifications(prev => prev.map(n => ({ ...n, isRead: true })))
   }
 
   // Đếm số lượng chưa đọc
@@ -123,9 +122,9 @@ function Notifications() {
               height: 10,
               bgcolor: 'background.paper',
               transform: 'translateY(-50%) rotate(45deg)',
-              zIndex: 0,
-            },
-          },
+              zIndex: 0
+            }
+          }
         }}
         transformOrigin={{ horizontal: 'right', vertical: 'top' }}
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
@@ -133,47 +132,47 @@ function Notifications() {
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 2, pb: 1 }}>
           <Typography variant="h6" fontSize="1rem" fontWeight="bold">Notifications</Typography>
           <Tooltip title="Mark all as read">
-             <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleMarkAllAsRead() }}>
-                <DoneAllIcon fontSize="small" color="primary" />
-             </IconButton>
+            <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleMarkAllAsRead() }}>
+              <DoneAllIcon fontSize="small" color="primary" />
+            </IconButton>
           </Tooltip>
         </Box>
         <Divider />
 
         {/* Danh sách thông báo */}
         {!notifications || notifications.length === 0 ? (
-           <Box sx={{ p: 2, textAlign: 'center' }}>
-              <Typography variant="body2" color="text.secondary">You have no notifications</Typography>
-           </Box>
+          <Box sx={{ p: 2, textAlign: 'center' }}>
+            <Typography variant="body2" color="text.secondary">You have no notifications</Typography>
+          </Box>
         ) : (
-           notifications.map((notif) => (
-             <MenuItem 
-                key={notif.id} 
-                sx={{ 
-                    display: 'flex', 
-                    alignItems: 'flex-start', 
-                    gap: 2, 
-                    whiteSpace: 'normal',
-                    bgcolor: notif.isRead ? 'transparent' : '#e3f2fd'
-                }}
-                onClick={() => handleMarkAsRead(notif)}
-             >
-                {/* Avatar người gửi */}
-                <Avatar src={notif.sender?.avatarUrl} alt="sender" sx={{ width: 32, height: 32, mt: 0.5 }} />
-                
-                <Box>
-                    <Typography variant="body2" sx={{ fontWeight: notif.isRead ? 'normal' : 'bold' }}>
-                        {notif.content}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                        {new Date(notif.createdAt).toLocaleString()}
-                    </Typography>
-                </Box>
-                
-                {/* Chấm xanh nếu chưa đọc */}
-                {!notif.isRead && <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: 'primary.main', mt: 1.5 }} />}
-             </MenuItem>
-           ))
+          notifications.map((notif) => (
+            <MenuItem
+              key={notif.id}
+              sx={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: 2,
+                whiteSpace: 'normal',
+                bgcolor: notif.isRead ? 'transparent' : '#e3f2fd'
+              }}
+              onClick={() => handleMarkAsRead(notif)}
+            >
+              {/* Avatar người gửi */}
+              <Avatar src={notif.sender?.avatarUrl} alt="sender" sx={{ width: 32, height: 32, mt: 0.5 }} />
+
+              <Box>
+                <Typography variant="body2" sx={{ fontWeight: notif.isRead ? 'normal' : 'bold' }}>
+                  {notif.content}
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  {new Date(notif.createdAt).toLocaleString()}
+                </Typography>
+              </Box>
+
+              {/* Chấm xanh nếu chưa đọc */}
+              {!notif.isRead && <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: 'primary.main', mt: 1.5 }} />}
+            </MenuItem>
+          ))
         )}
       </Menu>
     </Box>

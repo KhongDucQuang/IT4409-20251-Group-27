@@ -6,10 +6,11 @@ import TextField from '@mui/material/TextField' // <--- THÊM
 import CloseIcon from '@mui/icons-material/Close' // <--- THÊM
 import { SortableContext, horizontalListSortingStrategy } from '@dnd-kit/sortable'
 import { useState } from 'react' // <--- THÊM
-import { toast } from 'react-toastify' // <--- THÊM (Nếu bạn có cài react-toastify, nếu chưa thì dùng alert)
-
-// 1. Nhận thêm prop createNewColumn, createNewCard
 function ListColumns({ columns, createNewColumn, createNewCard, handleSetActiveCard, handleDeleteColumn }) {
+  /**
+   * Thằng SortableContext yêu cầu items phải là một mảng dạng ['id-1', 'id-2', ...]
+   * chứ không phải mảng object. Nếu không đúng thì vẫn kéo thả được nhưng không có animation
+   */
   const [openNewColumnForm, setOpenNewColumnForm] = useState(false)
   const [newColumnTitle, setNewColumnTitle] = useState('')
 
@@ -17,7 +18,7 @@ function ListColumns({ columns, createNewColumn, createNewCard, handleSetActiveC
 
   const addNewColumn = async () => {
     if (!newColumnTitle) {
-      // toast.error('Please enter column title!') 
+      // toast.error('Please enter column title!')
       return // Nếu không có title thì không làm gì
     }
 
@@ -28,7 +29,6 @@ function ListColumns({ columns, createNewColumn, createNewCard, handleSetActiveC
     toggleOpenNewColumnForm()
     setNewColumnTitle('')
   }
-
   return (
     <SortableContext items={columns?.map(c => c._id)} strategy={horizontalListSortingStrategy}>
       <Box sx={{
@@ -40,16 +40,13 @@ function ListColumns({ columns, createNewColumn, createNewCard, handleSetActiveC
         overflowY: 'hidden',
         '&::-webkit-scrollbar-track': { m: 2 }
       }}>
-        {/* 2. Truyền createNewCard xuống cho Column */}
-        {columns?.map(column => 
-          <Column 
-            key={column._id} 
-            column={column} 
+        {columns?.map(column =>
+          <Column
+            key={column._id}
+            column={column}
             createNewCard={createNewCard}
             handleSetActiveCard={handleSetActiveCard}
-            handleDeleteColumn={handleDeleteColumn}
-          /> 
-        )}
+            handleDeleteColumn={handleDeleteColumn}/> )}
 
         {/* Box Add new column CTA */}
         {!openNewColumnForm
@@ -62,8 +59,8 @@ function ListColumns({ columns, createNewColumn, createNewCard, handleSetActiveC
             bgcolor: '#ffffff3d'
           }}>
             <Button
-              startIcon={<NoteAddIcon />}
-              sx={{
+              startIcon = {<NoteAddIcon/>}
+              sx = {{
                 color: 'white',
                 width: '100%',
                 justifyContent: 'flex-start',

@@ -7,12 +7,29 @@ import BoltIcon from '@mui/icons-material/Bolt'
 import FilterListIcon from '@mui/icons-material/FilterList'
 import Avatar from '@mui/material/Avatar'
 import AvatarGroup from '@mui/material/AvatarGroup'
-import { Tooltip, Button, Popover, TextField, Typography } from '@mui/material'
+import Tooltip from '@mui/material/Tooltip'
+import Button from '@mui/material/Button'
+import Popover from '@mui/material/Popover'
+import Typography from '@mui/material/Typography'
+import TextField from '@mui/material/TextField'
 import PersonAddIcon from '@mui/icons-material/PersonAdd'
+import { capitalizeFirstLetter } from '~/utils/formatter'
 import { useState } from 'react'
 import { inviteUserToBoardAPI } from '~/apis/boardApi'
 import { toast } from 'react-toastify'
-
+const MENU_STYLES ={
+  color: 'white',
+  bgcolor: 'transparent',
+  border: 'none',
+  paddingX: '5px',
+  borderRadius: '4px',
+  '.MuiSvgIcon-root': {
+    color: 'white'
+  },
+  '&:hover': {
+    bgcolor: 'primary.50'
+  }
+}
 function BoardBar({ board }) {
   // State xử lý Invite
   const [anchorElInvite, setAnchorElInvite] = useState(null)
@@ -34,7 +51,6 @@ function BoardBar({ board }) {
       toast.error('Lỗi: ' + (error?.response?.data?.message || 'Không thể mời người dùng này'))
     }
   }
-
   return (
     <Box sx={{
       width: '100%',
@@ -67,35 +83,66 @@ function BoardBar({ board }) {
         >
             Invite
         </Button>
-        
+
         {/* POPOVER FORM INVITE */}
         <Popover
-            open={openInvite}
-            anchorEl={anchorElInvite}
-            onClose={() => setAnchorElInvite(null)}
-            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+          open={openInvite}
+          anchorEl={anchorElInvite}
+          onClose={() => setAnchorElInvite(null)}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+          transformOrigin={{ vertical: 'top', horizontal: 'right' }}
         >
-            <Box sx={{ p: 2, width: '300px' }}>
-                <Typography variant="h6" sx={{ mb: 2, fontSize: '1rem', fontWeight: 'bold' }}>Mời người vào Board</Typography>
-                <TextField 
-                    fullWidth 
-                    label="Nhập email" 
-                    size="small" 
-                    value={emailInvite} 
-                    onChange={(e) => setEmailInvite(e.target.value)}
-                    sx={{ mb: 2 }}
-                />
-                <Button variant="contained" fullWidth onClick={handleInviteUser}>Mời</Button>
-            </Box>
+          <Box sx={{ p: 2, width: '300px' }}>
+            <Typography variant="h6" sx={{ mb: 2, fontSize: '1rem', fontWeight: 'bold' }}>Mời người vào Board</Typography>
+            <TextField
+              fullWidth
+              label="Nhập email"
+              size="small"
+              value={emailInvite}
+              onChange={(e) => setEmailInvite(e.target.value)}
+              sx={{ mb: 2 }}
+            />
+            <Button variant="contained" fullWidth onClick={handleInviteUser}>Mời</Button>
+          </Box>
         </Popover>
-
-        <AvatarGroup max={4} sx={{ '& .MuiAvatar-root': { width: 34, height: 34, fontSize: 16, border: 'none' } }}>
-          {board?.members?.map((member, index) => (
+        <AvatarGroup
+          max={4}
+          sx={{
+            gap: '10px',
+            '& .MuiAvatar-root': {
+              width: 34,
+              height: 34,
+              fontSize: 16,
+              border: 'none',
+              color: 'white',
+              cursor: 'pointer',
+              '&:first-of-type': { bgcolor: '#a4b0be' }
+            }
+          }}
+        >
+          <Tooltip title="MeoCute">
+            <Avatar alt="MeoCute" src="https://thuvienquangngai.vn/wp-content/uploads/2025/01/avatar-vo-tri-ngau-13-1.jpg"/>
+          </Tooltip>
+          <Tooltip title="VitCute">
+            <Avatar alt="VitCute" src="https://thuvienquangngai.vn/wp-content/uploads/2025/01/avatar-vo-tri-ngau-16.jpg"/>
+          </Tooltip>
+          <Tooltip title="HiHi">
+            <Avatar alt="HiHi" src="https://thuvienquangngai.vn/wp-content/uploads/2025/01/avatar-vo-tri-ngau-11.jpg"/>
+          </Tooltip>
+          <Tooltip title="HaHa">
+            <Avatar alt="HaHa" src="https://thuvienquangngai.vn/wp-content/uploads/2025/01/avatar-vo-tri-ngau-9.jpg"/>
+          </Tooltip>
+          <Tooltip title="MeoCute">
+            <Avatar alt="MeoCute" src="https://thuvienquangngai.vn/wp-content/uploads/2025/01/avatar-vo-tri-ngau-13-1.jpg"/>
+          </Tooltip>
+          <Tooltip title="MeoCute">
+            <Avatar alt="MeoCute" src="https://thuvienquangngai.vn/wp-content/uploads/2025/01/avatar-vo-tri-ngau-13-1.jpg"/>
+          </Tooltip>
+          {/* {board?.members?.map((member, index) => (
              <Tooltip key={index} title={member.user?.name}>
                 <Avatar alt={member.user?.name} src={member.user?.avatarUrl} />
              </Tooltip>
-          ))}
+          ))} */}
         </AvatarGroup>
       </Box>
     </Box>

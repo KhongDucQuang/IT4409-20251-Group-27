@@ -32,15 +32,15 @@ function CreateBoardModal({ isOpen, onClose }) {
     try {
       // 1. Gọi API tạo board
       const newBoard = await createBoardAPI({ title, description, type })
-      
+
       // 2. Thông báo thành công
       toast.success('Tạo bảng thành công!')
-      
+
       // 3. Đóng modal và reset form
       onClose()
       setTitle('')
       setDescription('')
-      
+
       // 4. Chuyển hướng ngay đến bảng vừa tạo
       navigate(`/boards/${newBoard.id}`)
 
@@ -66,7 +66,7 @@ function CreateBoardModal({ isOpen, onClose }) {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />
-          
+
           <TextField
             label="Description"
             variant="outlined"
@@ -91,8 +91,8 @@ function CreateBoardModal({ isOpen, onClose }) {
           </FormControl>
 
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 1 }}>
-             <Button onClick={onClose} color="inherit">Cancel</Button>
-             <Button onClick={handleCreateBoard} variant="contained">Create</Button>
+            <Button onClick={onClose} color="inherit">Cancel</Button>
+            <Button onClick={handleCreateBoard} variant="contained">Create</Button>
           </Box>
         </Box>
       </Box>

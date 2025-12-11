@@ -26,16 +26,16 @@ export const unassignMemberAPI = async (cardId, userId) => {
 
 export const createAttachmentAPI = async (cardId, file) => {
   // Khi upload file, phải dùng FormData
-  const formData = new FormData();
-  formData.append('file', file); // 'file' phải khớp với tên trong upload.single('file') ở Backend
+  const formData = new FormData()
+  formData.append('file', file) // 'file' phải khớp với tên trong upload.single('file') ở Backend
 
   const response = await axiosClient.post(`/cards/${cardId}/attachments`, formData, {
     headers: {
       'Content-Type': 'multipart/form-data'
     }
-  });
-  return response;
-};
+  })
+  return response
+}
 
 export const deleteCardAPI = async (cardId) => {
   const response = await axiosClient.delete(`/cards/${cardId}`)
@@ -44,28 +44,28 @@ export const deleteCardAPI = async (cardId) => {
 
 // --- CHECKLISTS ---
 export const createChecklistAPI = async (cardId, title) => {
-  const response = await axiosClient.post(`/cards/${cardId}/checklists`, { title });
-  return response;
-};
+  const response = await axiosClient.post(`/cards/${cardId}/checklists`, { title })
+  return response
+}
 
 export const deleteChecklistAPI = async (checklistId) => {
-  const response = await axiosClient.delete(`/checklists/${checklistId}`);
-  return response;
-};
+  const response = await axiosClient.delete(`/checklists/${checklistId}`)
+  return response
+}
 
 // --- CHECKLIST ITEMS ---
 export const createChecklistItemAPI = async (checklistId, content) => {
-  const response = await axiosClient.post(`/checklists/${checklistId}/items`, { content });
-  return response;
-};
+  const response = await axiosClient.post(`/checklists/${checklistId}/items`, { content })
+  return response
+}
 
 export const updateChecklistItemAPI = async (itemId, data) => {
   // data: { isCompleted: true/false } hoặc { content: '...' }
-  const response = await axiosClient.patch(`/checklistItems/${itemId}`, data);
-  return response;
-};
+  const response = await axiosClient.patch(`/checklistItems/${itemId}`, data)
+  return response
+}
 
 export const deleteChecklistItemAPI = async (itemId) => {
-  const response = await axiosClient.delete(`/checklistItems/${itemId}`);
-  return response;
-};
+  const response = await axiosClient.delete(`/checklistItems/${itemId}`)
+  return response
+}

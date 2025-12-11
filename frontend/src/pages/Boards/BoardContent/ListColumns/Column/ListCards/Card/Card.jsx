@@ -10,7 +10,6 @@ import AttachmentIcon from '@mui/icons-material/Attachment'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 
-// 1. Nhận thêm prop handleSetActiveCard
 function Card({ card, handleSetActiveCard }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: card._id,
@@ -28,7 +27,6 @@ function Card({ card, handleSetActiveCard }) {
     return !!card?.memberIds?.length || !!card?.comments?.length || !!card?.attachments?.length
   }
 
-  // 2. Hàm xử lý Click
   const handleClick = () => {
     if (handleSetActiveCard) {
       handleSetActiveCard(card)
@@ -37,9 +35,7 @@ function Card({ card, handleSetActiveCard }) {
 
   return (
     <MuiCard
-      // 3. Gắn sự kiện onClick vào đây
       onClick={handleClick}
-      
       ref={setNodeRef}
       style={dndKitCardStyles}
       {...attributes}

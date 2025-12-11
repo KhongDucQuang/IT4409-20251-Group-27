@@ -15,7 +15,6 @@ const ACTIVE_DRAG_ITEM_TYPE = {
   CARD: 'ACTIVE_DRAG_ITEM_TYPE_CARD'
 }
 import { socket } from '~/socket'
-
 function BoardContent({ board, createNewColumn, createNewCard, handleSetActiveCard, handleDeleteColumn, searchValue }) {
   // Yêu cầu chuột di chuyển 10px thì mới kích hoạt event, fix trường hợp click bị gọi event
   // Nếu dùng PointerSensor mặc định thì phải kết hợp thuộc tính CSS touch-action: none ở những phần tử cần kéo thả - nma còn bug.
@@ -47,17 +46,17 @@ function BoardContent({ board, createNewColumn, createNewCard, handleSetActiveCa
 
   const columnsToRender = searchValue
     ? orderedColumns.map(column => {
-        const newColumn = cloneDeep(column)
-        
-        // Chỉ lọc nếu column có cards
-        if (newColumn.cards) {
-          newColumn.cards = newColumn.cards.filter(c => 
-            // Dùng Optional Chaining (?.) để không bị crash nếu title null
-            c?.title?.toLowerCase().includes(searchValue.toLowerCase())
-          )
-        }
-        return newColumn
-      })
+      const newColumn = cloneDeep(column)
+
+      // Chỉ lọc nếu column có cards
+      if (newColumn.cards) {
+        newColumn.cards = newColumn.cards.filter(c =>
+        // Dùng Optional Chaining (?.) để không bị crash nếu title null
+          c?.title?.toLowerCase().includes(searchValue.toLowerCase())
+        )
+      }
+      return newColumn
+    })
     : orderedColumns
 
   // Tìm một cái Column theo CardId
@@ -219,7 +218,6 @@ function BoardContent({ board, createNewColumn, createNewCard, handleSetActiveCa
 
         // 👇 1. THÊM VÀO ĐÂY (Trường hợp kéo sang cột khác)
         socket.emit('FE_UPDATE_BOARD', { boardId: board._id })
-
       } else {
         // Kéo thả card trong cùng một column
         // Lấy vị trí cũ từ thằng oldColumnWhenDraggingCard
@@ -278,8 +276,8 @@ function BoardContent({ board, createNewColumn, createNewCard, handleSetActiveCa
         setOrderedColumns(dndOrderedColumns)
 
         // 4. Gọi API cập nhật vị trí COLUMN
-        updateBoardDetailsAPI(board._id, { 
-          listOrderIds: dndOrderedColumns.map(c => c._id) 
+        updateBoardDetailsAPI(board._id, {
+          listOrderIds: dndOrderedColumns.map(c => c._id)
         })
 
         // 👇 3. THÊM VÀO ĐÂY (Trường hợp kéo cột)
@@ -357,13 +355,12 @@ function BoardContent({ board, createNewColumn, createNewCard, handleSetActiveCa
         height: (theme) => theme.trello.boardContentHeight,
         p: '10px 0'
       }}>
-        <ListColumns 
-          columns={columnsToRender} 
+        <ListColumns
+          columns={columnsToRender}
           createNewColumn={createNewColumn}
           createNewCard={createNewCard}
           handleSetActiveCard={handleSetActiveCard}
-          handleDeleteColumn={handleDeleteColumn}
-        />
+          handleDeleteColumn={handleDeleteColumn} />
         <DragOverlay dropAnimation={customDropAnimation}>
           {(!activeDragItemType) && null}
           {(activeDragItemType === ACTIVE_DRAG_ITEM_TYPE.COLUMN) && <Column column={activeDragItemData} />}

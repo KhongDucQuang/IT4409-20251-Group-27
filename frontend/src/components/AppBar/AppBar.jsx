@@ -51,10 +51,10 @@ function AppBar({ searchValue, setSearchValue }) {
         </Box>
 
         <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 1 }}>
-          <Workspaces />
+          {/* <Workspaces />
           <Recent />
           <Starred />
-          <Templates />
+          <Templates /> */}
           <Button
             sx={{
               color: 'white',
@@ -106,7 +106,7 @@ function AppBar({ searchValue, setSearchValue }) {
               '&.Mui-focused fieldset': { borderColor: 'white' }
             }
           }}/>
-        
+
         <ModeSelect />
         <Notifications />
 
@@ -118,7 +118,7 @@ function AppBar({ searchValue, setSearchValue }) {
       </Box>
 
       {/* Modal Tạo Board */}
-      <CreateBoardModal 
+      <CreateBoardModal
         isOpen={openCreateModal}
         onClose={() => setOpenCreateModal(false)}
       />
