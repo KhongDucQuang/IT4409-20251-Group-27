@@ -10,7 +10,7 @@ import ContentCopy from '@mui/icons-material/ContentCopy'
 import ContentPaste from '@mui/icons-material/ContentPaste'
 import Cloud from '@mui/icons-material/Cloud'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import React from 'react'
+import React, { useState } from 'react'
 import Tooltip from '@mui/material/Tooltip'
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever'
 import AddCardIcon from '@mui/icons-material/AddCard'
@@ -20,8 +20,11 @@ import ListCards from './ListCards/ListCards'
 import { mapOrder } from '~/utils/sorts'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+import TextField from '@mui/material/TextField' // <--- THÊM
+import CloseIcon from '@mui/icons-material/Close' // <--- THÊM
+import { useConfirm } from 'material-ui-confirm' // Import hook
 
-function Column({ column }) {
+function Column({ column, createNewCard, handleSetActiveCard, handleDeleteColumn }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: column._id,
     data: { ...column }
@@ -47,6 +50,40 @@ function Column({ column }) {
   const handleClose = () => {
     setAnchorEl(null)
   }
+
+  // --- LOGIC MỚI: TẠO CARD ---
+  const [openNewCardForm, setOpenNewCardForm] = useState(false)
+  const [newCardTitle, setNewCardTitle] = useState('')
+
+  const toggleOpenNewCardForm = () => setOpenNewCardForm(!openNewCardForm)
+
+  const addNewCard = async () => {
+    if (!newCardTitle) return
+
+    // Gọi API tạo card mới, truyền vào title và columnId
+    await createNewCard({ title: newCardTitle, columnId: column._id })
+
+    toggleOpenNewCardForm()
+    setNewCardTitle('')
+  }
+  const confirm = useConfirm()
+  const confirmDeleteColumn = () => {
+    confirm({
+      title: 'Xóa cột?',
+      description: `Hành động này sẽ xóa vĩnh viễn cột "${column.title}" và toàn bộ thẻ bên trong!`,
+      confirmationText: 'Xác nhận',
+      cancellationText: 'Hủy'
+    })
+      .then(() => {
+        // Khi người dùng bấm "Xác nhận"
+        handleDeleteColumn(column._id)
+      })
+      .catch(() => {
+        // Khi người dùng bấm "Hủy" (Không làm gì cả)
+      })
+  }
+  // ---------------------------
+
   const orderedCards = mapOrder(column?.cards, column?.cardOrderIds, '_id')
   // Phải bọc div ở đây vì vấn đề chiều cao của column khi kéo thả sẽ có bug flickering
   return (
@@ -123,7 +160,7 @@ function Column({ column }) {
                 <ListItemText>Paste</ListItemText>
               </MenuItem>
               <Divider />
-              <MenuItem>
+              <MenuItem onClick={confirmDeleteColumn}>
                 <ListItemIcon><DeleteForeverIcon fontSize="small" /></ListItemIcon>
                 <ListItemText>Remove this column</ListItemText>
               </MenuItem>
@@ -136,7 +173,10 @@ function Column({ column }) {
         </Box>
 
         {/* Box List Card*/}
-        <ListCards cards={orderedCards}/>
+        <ListCards
+          cards={orderedCards}
+          handleSetActiveCard={handleSetActiveCard}
+        />
 
         {/* Box Column Footer */}
         <Box sx={{
@@ -146,10 +186,62 @@ function Column({ column }) {
           alignItems: 'center',
           justifyContent: 'center'
         }}>
-          <Button startIcon={<AddCardIcon />}>Add new card</Button>
-          <Tooltip title="Drag to move">
-            <DragHandleIcon sx={{ cursor: 'pointer' }}/>
-          </Tooltip>
+          {!openNewCardForm
+            ? <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Button startIcon={<AddCardIcon />} onClick={toggleOpenNewCardForm}>Add new card</Button>
+              <Tooltip title="Drag to move">
+                <DragHandleIcon sx={{ cursor: 'pointer' }} />
+              </Tooltip>
+            </Box>
+            : <Box sx={{ height: '100%', display: 'flex', alignItems: 'center', gap: 1 }}>
+              <TextField
+                label="Enter card title..."
+                type="text"
+                size="small"
+                variant="outlined"
+                autoFocus
+                data-no-dnd="true" // Quan trọng: chặn kéo thả khi đang nhập
+                value={newCardTitle}
+                onChange={(e) => setNewCardTitle(e.target.value)}
+                sx={{
+                  '& label': { color: 'text.primary' },
+                  '& input': {
+                    color: (theme) => theme.palette.primary.main,
+                    bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#333643' : 'white')
+                  },
+                  '& label.Mui-focused': { color: (theme) => theme.palette.primary.main },
+                  '& .MuiOutlinedInput-root': {
+                    '& fieldset': { borderColor: (theme) => theme.palette.primary.main },
+                    '&:hover fieldset': { borderColor: (theme) => theme.palette.primary.main },
+                    '&.Mui-focused fieldset': { borderColor: (theme) => theme.palette.primary.main }
+                  },
+                  '& .MuiOutlinedInput-input': {
+                    borderRadius: 1
+                  }
+                }}
+              />
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Button
+                  onClick={addNewCard}
+                  variant="contained" color="success" size="small"
+                  sx={{
+                    boxShadow: 'none',
+                    border: '0.5px solid',
+                    borderColor: (theme) => theme.palette.success.main,
+                    '&:hover': { bgcolor: (theme) => theme.palette.success.main }
+                  }}
+                >Add</Button>
+                <CloseIcon
+                  fontSize="small"
+                  sx={{
+                    color: (theme) => theme.palette.warning.light,
+                    cursor: 'pointer'
+                  }}
+                  onClick={toggleOpenNewCardForm}
+                />
+              </Box>
+            </Box>
+          }
         </Box>
       </Box>
     </div>

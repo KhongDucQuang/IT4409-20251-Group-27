@@ -2,7 +2,7 @@ import { useState } from 'react'
 import ModeSelect from '~/components/ModeSelect/ModeSelect'
 import Box from '@mui/material/Box'
 import AppsIcon from '@mui/icons-material/Apps'
-import SvgIcon from '@mui/icons-material/Apps'
+import SvgIcon from '@mui/material/SvgIcon'
 import { ReactComponent as TrelloIcon } from '~/assets/trello.svg'
 import Typography from '@mui/material/Typography'
 import Workspaces from './Menu/Workspaces.jsx'
@@ -11,8 +11,6 @@ import Starred from './Menu/Starred.jsx'
 import Templates from './Menu/Templates.jsx'
 import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
-import Badge from '@mui/material/Badge'
-import NotigicationsNoneIcon from '@mui/icons-material/NotificationsNone'
 import Tooltip from '@mui/material/Tooltip'
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
 import Profiles from './Menu/Profiles.jsx'
@@ -21,8 +19,15 @@ import InputAdornment from '@mui/material/InputAdornment'
 import SearchIcon from '@mui/icons-material/Search'
 import CloseIcon from '@mui/icons-material/Close'
 
-function AppBar() {
-  const [searchValue, setSearchValue] = useState('')
+import Notifications from './Notifications/Notifications'
+// Import Modal Tạo Board
+import CreateBoardModal from '~/components/Modal/CreateBoardModal/CreateBoardModal'
+
+// 👇 NHẬN PROPS TỪ CHA (searchValue, setSearchValue)
+function AppBar({ searchValue, setSearchValue }) {
+  // State quản lý modal tạo board
+  const [openCreateModal, setOpenCreateModal] = useState(false)
+
   return (
     <Box
       sx={{
@@ -37,6 +42,7 @@ function AppBar() {
         bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#2c3e50' : '#1565c0')
       }}
     >
+      {/* --- CỘT TRÁI --- */}
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
         <AppsIcon sx={{ color: 'white' }} />
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
@@ -57,18 +63,23 @@ function AppBar() {
             }}
             variant="outlined"
             startIcon={<LibraryAddIcon/>}
+            onClick={() => setOpenCreateModal(true)} // <--- BẤM ĐỂ MỞ MODAL
           >
             Create
           </Button>
         </Box>
       </Box>
+
+      {/* --- CỘT PHẢI --- */}
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
         <TextField
           id="outlined-search"
-          label="Search..."
+          label="Search cards..."
           type="text"
           size="small"
+          // 👇 Dùng giá trị từ props
           value={searchValue}
+          // 👇 Gọi hàm từ props
           onChange={(e) => setSearchValue(e.target.value)}
           InputProps={{
             startAdornment:(
@@ -95,19 +106,22 @@ function AppBar() {
               '&.Mui-focused fieldset': { borderColor: 'white' }
             }
           }}/>
-        <ModeSelect />
 
-        <Tooltip title="Notifications">
-          <Badge color="warning" variant="dot" sx={{ cursor: 'pointer' }}>
-            <NotigicationsNoneIcon sx={{ color: 'white' }}/>
-          </Badge>
-        </Tooltip>
+        <ModeSelect />
+        <Notifications />
+
         <Tooltip title="Help">
           <HelpOutlineIcon sx={{ cursor: 'pointer', color: 'white' }} />
         </Tooltip>
 
         <Profiles />
       </Box>
+
+      {/* Modal Tạo Board */}
+      <CreateBoardModal
+        isOpen={openCreateModal}
+        onClose={() => setOpenCreateModal(false)}
+      />
     </Box>
   )
 }

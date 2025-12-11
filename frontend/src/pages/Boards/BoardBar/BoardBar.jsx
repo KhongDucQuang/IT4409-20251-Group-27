@@ -9,9 +9,14 @@ import Avatar from '@mui/material/Avatar'
 import AvatarGroup from '@mui/material/AvatarGroup'
 import Tooltip from '@mui/material/Tooltip'
 import Button from '@mui/material/Button'
+import Popover from '@mui/material/Popover'
+import Typography from '@mui/material/Typography'
+import TextField from '@mui/material/TextField'
 import PersonAddIcon from '@mui/icons-material/PersonAdd'
 import { capitalizeFirstLetter } from '~/utils/formatter'
-
+import { useState } from 'react'
+import { inviteUserToBoardAPI } from '~/apis/boardApi'
+import { toast } from 'react-toastify'
 const MENU_STYLES ={
   color: 'white',
   bgcolor: 'transparent',
@@ -26,6 +31,26 @@ const MENU_STYLES ={
   }
 }
 function BoardBar({ board }) {
+  // State xử lý Invite
+  const [anchorElInvite, setAnchorElInvite] = useState(null)
+  const openInvite = Boolean(anchorElInvite)
+  const [emailInvite, setEmailInvite] = useState('')
+
+  const handleInviteUser = async () => {
+    if (!emailInvite) return
+
+    try {
+      await inviteUserToBoardAPI(board._id, emailInvite)
+      toast.success('Mời thành viên thành công!')
+      setEmailInvite('')
+      setAnchorElInvite(null)
+      // Mẹo nhỏ: Reload trang để cập nhật danh sách thành viên mới vào Board
+      // (Cách xịn hơn là update state board ở component cha nhưng reload là nhanh nhất)
+      window.location.reload()
+    } catch (error) {
+      toast.error('Lỗi: ' + (error?.response?.data?.message || 'Không thể mời người dùng này'))
+    }
+  }
   return (
     <Box
       sx={{
@@ -89,6 +114,28 @@ function BoardBar({ board }) {
         >
           Invite
         </Button>
+
+        {/* POPOVER FORM INVITE */}
+        <Popover
+          open={openInvite}
+          anchorEl={anchorElInvite}
+          onClose={() => setAnchorElInvite(null)}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+          transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+        >
+          <Box sx={{ p: 2, width: '300px' }}>
+            <Typography variant="h6" sx={{ mb: 2, fontSize: '1rem', fontWeight: 'bold' }}>Mời người vào Board</Typography>
+            <TextField
+              fullWidth
+              label="Nhập email"
+              size="small"
+              value={emailInvite}
+              onChange={(e) => setEmailInvite(e.target.value)}
+              sx={{ mb: 2 }}
+            />
+            <Button variant="contained" fullWidth onClick={handleInviteUser}>Mời</Button>
+          </Box>
+        </Popover>
         <AvatarGroup
           max={4}
           sx={{
@@ -122,6 +169,11 @@ function BoardBar({ board }) {
           <Tooltip title="MeoCute">
             <Avatar alt="MeoCute" src="https://thuvienquangngai.vn/wp-content/uploads/2025/01/avatar-vo-tri-ngau-13-1.jpg"/>
           </Tooltip>
+          {/* {board?.members?.map((member, index) => (
+             <Tooltip key={index} title={member.user?.name}>
+                <Avatar alt={member.user?.name} src={member.user?.avatarUrl} />
+             </Tooltip>
+          ))} */}
         </AvatarGroup>
       </Box>
     </Box>

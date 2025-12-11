@@ -1,18 +1,37 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
-import Auth from '~/pages/Auth'
-import BoardList from '~/pages/Boards'
-import BoardDetail from '~/pages/Boards/_id'
+import Board from './pages/Boards/_id'
+import Boards from './pages/Boards/index'
+import Login from './pages/Auth/Login'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
+import Register from './pages/Auth/Register'
+// 1. 👇 Import ConfirmProvider
+import { ConfirmProvider } from 'material-ui-confirm'
 
 function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Navigate to="/login" replace={true} />} />
-      <Route path="/login" element={<Auth />} />
-      <Route path="/register" element={<Auth />} />
-      <Route path="/boards" element={<BoardList />} />
-      <Route path="/boards/:boardId" element={<BoardDetail />} />
-      <Route path="*" element={<div>404 Not Found</div>} />
-    </Routes>
+    <>
+      {/* 2. 👇 Bọc ConfirmProvider quanh Routes */}
+      <ConfirmProvider
+        defaultOptions={{
+          allowClose: false,
+          dialogProps: { maxWidth: 'xs' }, // Popup nhỏ gọn
+          buttonOrder: ['confirm', 'cancel'], // Nút xác nhận bên trái
+          cancellationButtonProps: { color: 'inherit' },
+          confirmationButtonProps: { color: 'secondary', variant: 'outlined' }
+        }}
+      >
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/boards" element={<Boards />} />
+          <Route path="/boards/:boardId" element={<Board />} />
+          <Route path="/" element={<Navigate to="/login" />} />
+        </Routes>
+      </ConfirmProvider>
+
+      <ToastContainer position="bottom-right" theme="colored" />
+    </>
   )
 }
 
