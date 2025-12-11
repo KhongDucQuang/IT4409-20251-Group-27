@@ -51,10 +51,10 @@ function AppBar({ searchValue, setSearchValue }) {
         </Box>
 
         <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 1 }}>
-          <Workspaces />
+          {/* <Workspaces />
           <Recent />
           <Starred />
-          <Templates />
+          <Templates /> */}
           <Button
             sx={{
               color: 'white',
