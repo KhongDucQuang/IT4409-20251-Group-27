@@ -58,7 +58,7 @@ function Register() {
       <Container component="main" maxWidth="xs">
         <Card sx={{ boxShadow: 3, borderRadius: 2 }}>
           <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 3 }}>
-            
+
             {/* Icon ổ khóa trang trí */}
             <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
               <LockOutlinedIcon />

@@ -11,25 +11,6 @@ import { ConfirmProvider } from 'material-ui-confirm';
 function App() {
   return (
     <>
-      {/* 2. 👇 Bọc ConfirmProvider quanh Routes */}
-      <ConfirmProvider 
-        defaultOptions={{
-          allowClose: false,
-          dialogProps: { maxWidth: 'xs' }, // Popup nhỏ gọn
-          buttonOrder: ['confirm', 'cancel'], // Nút xác nhận bên trái
-          cancellationButtonProps: { color: 'inherit' },
-          confirmationButtonProps: { color: 'secondary', variant: 'outlined' }
-        }}
-      >
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/boards" element={<Boards />} />
-          <Route path="/boards/:boardId" element={<Board />} />
-          <Route path="/" element={<Navigate to="/login" />} />
-        </Routes>
-      </ConfirmProvider>
-
       <ToastContainer position="bottom-right" theme="colored" />
       {/* 2. 👇 Bọc ConfirmProvider quanh Routes */}
       <ConfirmProvider
