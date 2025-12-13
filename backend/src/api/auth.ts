@@ -19,8 +19,7 @@ const loginLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-// === Endpoint Đăng ký (Register) ===
-// Không cần try...catch
+// Register Endpoint
 router.post('/register', validate(registerSchema), async (req, res) => {
   const { email, password, name } = req.body;
 
@@ -53,7 +52,7 @@ router.post('/register', validate(registerSchema), async (req, res) => {
   });
 });
 
-// === Endpoint Đăng nhập (Login) ===
+// Login Endpoint
 // Đã sửa thành 'loginSchema' và thêm 'loginLimiter'
 // Không cần try...catch
 router.post('/login', loginLimiter, validate(loginSchema), async (req, res) => {
