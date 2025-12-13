@@ -49,7 +49,6 @@ router.post('/', async (req, res) => {
   }
 
   try {
-    // THAY ĐỔI: Logic kiểm tra quyền
     // 1. Tìm list để lấy boardId
     const list = await prisma.list.findUnique({ where: { id: listId } });
     if (!list) {
@@ -108,9 +107,6 @@ router.patch('/:cardId', checkCardPermission, async (req, res) => {
   // const userId = req.user!.id; // Không cần nữa
 
   try {
-    // THAY ĐỔI: Xóa toàn bộ logic kiểm tra quyền ở đây
-    // (tìm card, check membership...)
-    
     // Chỉ cần tiến hành cập nhật
     const updatedCard = await prisma.card.update({
       where: { id: cardId },

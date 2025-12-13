@@ -5,7 +5,6 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 const router = Router();
 
-// ⬇️ HOÀN THIỆN LOGIC CHO BẠN ⬇️
 // Helper: Middleware kiểm tra quyền sở hữu item
 const checkItemPermission = async (req, res, next) => {
   const { itemId } = req.params;
@@ -44,14 +43,12 @@ const checkItemPermission = async (req, res, next) => {
     res.status(500).json({ message: 'Lỗi máy chủ' });
   }
 };
-// ⬆️ KẾT THÚC LOGIC HOÀN THIỆN ⬆️
 
 // PATCH /api/checklistItems/:itemId - Cập nhật item (content, isCompleted, position)
 router.patch('/:itemId', checkItemPermission, async (req, res) => {
   const { itemId } = req.params;
   const { content, isCompleted, position } = req.body;
 
-  // Đảm bảo không có data rỗng được gửi lên
   const dataToUpdate: any = {};
   if (content) dataToUpdate.content = content;
   if (isCompleted !== undefined) dataToUpdate.isCompleted = isCompleted;
