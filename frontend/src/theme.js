@@ -20,6 +20,7 @@ const theme = extendTheme({
     // },
     // dark: {
     // }
+    light: {}
   },
   components: {
     MuiCssBaseline: {

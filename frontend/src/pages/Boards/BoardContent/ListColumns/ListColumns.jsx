@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import Box from '@mui/material/Box'
 import Column from './Column/Column'
 import NoteAddIcon from '@mui/icons-material/NoteAdd'
@@ -7,6 +8,18 @@ import CloseIcon from '@mui/icons-material/Close' // <--- THÊM
 import { SortableContext, horizontalListSortingStrategy } from '@dnd-kit/sortable'
 import { useState } from 'react' // <--- THÊM
 function ListColumns({ columns, createNewColumn, createNewCard, handleSetActiveCard, handleDeleteColumn }) {
+=======
+import Box from "@mui/material/Box";
+import Column from "./Column/Column";
+import NoteAddIcon from "@mui/icons-material/NoteAdd";
+import Button from "@mui/material/Button";
+import {
+  SortableContext,
+  horizontalListSortingStrategy,
+} from "@dnd-kit/sortable";
+
+function ListColumns({ columns }) {
+>>>>>>> 0e5ad0bb0cc95c501f4c77f48b063a6fb389d65b
   /**
    * Thằng SortableContext yêu cầu items phải là một mảng dạng ['id-1', 'id-2', ...]
    * chứ không phải mảng object. Nếu không đúng thì vẫn kéo thả được nhưng không có animation
@@ -30,6 +43,7 @@ function ListColumns({ columns, createNewColumn, createNewCard, handleSetActiveC
     setNewColumnTitle('')
   }
   return (
+<<<<<<< HEAD
     <SortableContext items={columns?.map ( c => c._id)} strategy={horizontalListSortingStrategy}>
       <Box sx={{
         bgcolor: 'inherit',
@@ -123,8 +137,53 @@ function ListColumns({ columns, createNewColumn, createNewCard, handleSetActiveC
             </Box>
           </Box>
         }
+=======
+    <SortableContext
+      items={columns?.map((c) => c._id)}
+      strategy={horizontalListSortingStrategy}
+    >
+      <Box
+        sx={{
+          bgcolor: "inherit",
+          width: "100%",
+          height: "100%",
+          display: "flex",
+          overflowX: "auto",
+          overflowY: "hidden",
+          "&::-webkit-scrollbar-track": { m: 2 },
+        }}
+      >
+        {columns?.map((column) => (
+          <Column key={column._id} column={column} />
+        ))}
+
+        {/* Box Add new column CTA */}
+        <Box
+          sx={{
+            minWidth: "200px",
+            maxWidth: "200px",
+            mx: 2,
+            borderRadius: "10px",
+            height: "fit-content",
+            bgcolor: "#ffffff3d",
+          }}
+        >
+          <Button
+            startIcon={<NoteAddIcon />}
+            sx={{
+              color: "white",
+              width: "100%",
+              justifyContent: "flex-start",
+              pl: 2.5,
+              py: 1,
+            }}
+          >
+            Add new column
+          </Button>
+        </Box>
+>>>>>>> 0e5ad0bb0cc95c501f4c77f48b063a6fb389d65b
       </Box>
     </SortableContext>
-  )
+  );
 }
-export default ListColumns
+export default ListColumns;

@@ -19,7 +19,7 @@ router.get('/', async (req, res) => {
     // 1. Lấy page/limit từ query (ví dụ: ?page=1&limit=20)
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 20;
-    const skip = (page - 1) * limit; // Tính toán số lượng bỏ qua
+    const skip = (page - 1) * limit;
 
     // 2. Lấy boards và tổng số board (để tính tổng số trang)
     const [boards, totalBoards] = await prisma.$transaction([
@@ -49,7 +49,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// POST /api/boards - Tạo một board mới
+// POST /api/boards 
 router.post('/', validate(createBoardSchema), async (req, res) => {
   const { title } = req.body;
   const userId = req.user!.id;
@@ -74,7 +74,7 @@ router.post('/', validate(createBoardSchema), async (req, res) => {
   }
 });
 
-// GET /api/boards/:boardId - Lấy thông tin chi tiết của một board
+// GET /api/boards/:boardId 
 router.get('/:boardId', checkBoardMembership, async (req, res) => {
   const { boardId } = req.params;
   const { labelId, assigneeId } = req.query;
@@ -139,7 +139,7 @@ router.get('/:boardId', checkBoardMembership, async (req, res) => {
   }
 });
 
-// PATCH /api/boards/:boardId - Cập nhật (đổi tên, đổi hình nền)
+// PATCH /api/boards/:boardId - đổi tên, đổi hình nền
 router.patch('/:boardId', [checkBoardMembership, checkBoardAdmin], async (req, res) => {
   const { boardId } = req.params;
   const { title, backgroundImageUrl } = req.body;
