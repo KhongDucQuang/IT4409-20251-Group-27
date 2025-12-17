@@ -1,3 +1,19 @@
+<<<<<<< HEAD
+import Typography from '@mui/material/Typography'
+import Button from '@mui/material/Button'
+import { Card as MuiCard } from '@mui/material'
+import CardContent from '@mui/material/CardContent'
+import CardMedia from '@mui/material/CardMedia'
+import CardActions from '@mui/material/CardActions'
+import GroupIcon from '@mui/icons-material/Group'
+import CommentIcon from '@mui/icons-material/Comment'
+import AttachmentIcon from '@mui/icons-material/Attachment'
+import { useSortable } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+
+function Card({ card, handleSetActiveCard }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+=======
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import { Card as MuiCard } from "@mui/material";
@@ -20,6 +36,7 @@ function Card({ card, onCardClick }) {
     transition,
     isDragging,
   } = useSortable({
+>>>>>>> 0e5ad0bb0cc95c501f4c77f48b063a6fb389d65b
     id: card._id,
     data: { ...card },
   });
@@ -34,6 +51,17 @@ function Card({ card, onCardClick }) {
   };
 
   const shouldShowCardActions = () => {
+<<<<<<< HEAD
+    return !!card?.memberIds?.length || !!card?.comments?.length || !!card?.attachments?.length
+  }
+
+  const handleClick = () => {
+    if (handleSetActiveCard) {
+      handleSetActiveCard(card)
+    }
+  }
+
+=======
     return (
       !!card?.memberIds?.length ||
       !!card?.comments?.length ||
@@ -47,13 +75,24 @@ function Card({ card, onCardClick }) {
       onCardClick(card);
     }
   };
+>>>>>>> 0e5ad0bb0cc95c501f4c77f48b063a6fb389d65b
   return (
     <MuiCard
+      onClick={handleClick}
       ref={setNodeRef}
       style={dndKitCardStyles}
       {...attributes}
       {...listeners}
       sx={{
+<<<<<<< HEAD
+        cursor: 'pointer',
+        boxShadow: '0 1px 1px rgba(0, 0, 0, 0.2)',
+        overflow: 'unset',
+        display: card?.FE_PlaceholderCard ? 'none' : 'block',
+        border: '1px solid transparent',
+        '&:hover': { borderColor: (theme) => theme.palette.primary.main } // Thêm hiệu ứng hover cho đẹp
+      }}>
+=======
         cursor: "pointer",
         boxShadow: "0 1px 1px rgba(0, 0, 0, 0.2)",
         overflow: "unset",
@@ -62,6 +101,7 @@ function Card({ card, onCardClick }) {
       }}
       onClick={handleClick}
     >
+>>>>>>> 0e5ad0bb0cc95c501f4c77f48b063a6fb389d65b
       {card?.cover && <CardMedia sx={{ height: 140 }} image={card?.cover} />}
       <CardContent sx={{ p: 1.5, "&:last-child": { p: 1.5 } }}>
         <Typography> {card?.title} </Typography>

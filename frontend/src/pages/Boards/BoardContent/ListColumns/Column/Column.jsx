@@ -1,3 +1,33 @@
+<<<<<<< HEAD
+import Box from '@mui/material/Box'
+import Typography from '@mui/material/Typography'
+import Menu from '@mui/material/Menu'
+import MenuItem from '@mui/material/MenuItem'
+import ListItemText from '@mui/material/ListItemText'
+import ListItemIcon from '@mui/material/ListItemIcon'
+import Divider from '@mui/material/Divider'
+import ContentCut from '@mui/icons-material/ContentCut'
+import ContentCopy from '@mui/icons-material/ContentCopy'
+import ContentPaste from '@mui/icons-material/ContentPaste'
+import Cloud from '@mui/icons-material/Cloud'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import React, { useState } from 'react'
+import Tooltip from '@mui/material/Tooltip'
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever'
+import AddCardIcon from '@mui/icons-material/AddCard'
+import Button from '@mui/material/Button'
+import DragHandleIcon from '@mui/icons-material/DragHandle'
+import ListCards from './ListCards/ListCards'
+import { mapOrder } from '~/utils/sorts'
+import { useSortable } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+import TextField from '@mui/material/TextField' // <--- THÊM
+import CloseIcon from '@mui/icons-material/Close' // <--- THÊM
+import { useConfirm } from 'material-ui-confirm' // Import hook
+
+function Column({ column, createNewCard, handleSetActiveCard, handleDeleteColumn }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+=======
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Menu from "@mui/material/Menu";
@@ -32,6 +62,7 @@ function Column({ column }) {
     transition,
     isDragging,
   } = useSortable({
+>>>>>>> 0e5ad0bb0cc95c501f4c77f48b063a6fb389d65b
     id: column._id,
     data: { ...column },
   });
@@ -54,6 +85,46 @@ function Column({ column }) {
     setAnchorEl(event.currentTarget);
   };
   const handleClose = () => {
+<<<<<<< HEAD
+    setAnchorEl(null)
+  }
+
+  // --- LOGIC MỚI: TẠO CARD ---
+  const [openNewCardForm, setOpenNewCardForm] = useState(false)
+  const [newCardTitle, setNewCardTitle] = useState('')
+
+  const toggleOpenNewCardForm = () => setOpenNewCardForm(!openNewCardForm)
+
+  const addNewCard = async () => {
+    if (!newCardTitle) return
+
+    // Gọi API tạo card mới, truyền vào title và columnId
+    await createNewCard({ title: newCardTitle, columnId: column._id })
+
+    toggleOpenNewCardForm()
+    setNewCardTitle('')
+  }
+  const confirm = useConfirm()
+  const confirmDeleteColumn = () => {
+    confirm({
+      title: 'Xóa cột?',
+      description: `Hành động này sẽ xóa vĩnh viễn cột "${column.title}" và toàn bộ thẻ bên trong!`,
+      confirmationText: 'Xác nhận',
+      cancellationText: 'Hủy'
+    })
+      .then(() => {
+        // Khi người dùng bấm "Xác nhận"
+        handleDeleteColumn(column._id)
+      })
+      .catch(() => {
+        // Khi người dùng bấm "Hủy" (Không làm gì cả)
+      })
+  }
+  // ---------------------------
+
+  const orderedCards = mapOrder(column?.cards, column?.cardOrderIds, '_id')
+  // Phải bọc div ở đây vì vấn đề chiều cao của column khi kéo thả sẽ có bug flickering
+=======
     setAnchorEl(null);
   };
   const orderedCards = mapOrder(column?.cards, column?.cardOrderIds, "_id");
@@ -100,6 +171,7 @@ function Column({ column }) {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [openNewCardForm]); // Chỉ chạy lại khi trạng thái form thay đổi
+>>>>>>> 0e5ad0bb0cc95c501f4c77f48b063a6fb389d65b
   return (
     // Phải bọc div ở đây vì vấn đề chiều cao của column khi kéo thả sẽ có bug flickering
     <div ref={setNodeRef} style={dndKitColumnStyles} {...attributes}>
@@ -189,10 +261,15 @@ function Column({ column }) {
                 <ListItemText>Paste</ListItemText>
               </MenuItem>
               <Divider />
+<<<<<<< HEAD
+              <MenuItem onClick={confirmDeleteColumn}>
+                <ListItemIcon><DeleteForeverIcon fontSize="small" /></ListItemIcon>
+=======
               <MenuItem>
                 <ListItemIcon>
                   <DeleteForeverIcon fontSize="small" />
                 </ListItemIcon>
+>>>>>>> 0e5ad0bb0cc95c501f4c77f48b063a6fb389d65b
                 <ListItemText>Remove this column</ListItemText>
               </MenuItem>
               <MenuItem>
@@ -206,7 +283,14 @@ function Column({ column }) {
         </Box>
 
         {/* Box List Card*/}
+<<<<<<< HEAD
+        <ListCards
+          cards={orderedCards}
+          handleSetActiveCard={handleSetActiveCard}
+        />
+=======
         <ListCards cards={orderedCards} onCardClick={handleOpenCardDetail} />
+>>>>>>> 0e5ad0bb0cc95c501f4c77f48b063a6fb389d65b
 
         {/* 2. Render Modal/Dialog */}
         {selectedCard && (
@@ -217,6 +301,25 @@ function Column({ column }) {
           />
         )}
         {/* Box Column Footer */}
+<<<<<<< HEAD
+        <Box sx={{
+          height: (theme) => theme.trello.columnFooterHeight,
+          p: 2,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          {!openNewCardForm
+            ? <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Button startIcon={<AddCardIcon />} onClick={toggleOpenNewCardForm}>Add new card</Button>
+              <Tooltip title="Drag to move">
+                <DragHandleIcon sx={{ cursor: 'pointer' }} />
+              </Tooltip>
+            </Box>
+            : <Box sx={{ height: '100%', display: 'flex', alignItems: 'center', gap: 1 }}>
+              <TextField
+                label="Enter card title..."
+=======
         <Box
           sx={{
             minHeight: (theme) => theme.trello.columnFooterHeight, // Dùng minHeight
@@ -265,10 +368,55 @@ function Column({ column }) {
             >
               <TextField
                 placeholder="Enter a title or paste a link"
+>>>>>>> 0e5ad0bb0cc95c501f4c77f48b063a6fb389d65b
                 type="text"
                 size="small"
                 variant="outlined"
                 autoFocus
+<<<<<<< HEAD
+                data-no-dnd="true" // Quan trọng: chặn kéo thả khi đang nhập
+                value={newCardTitle}
+                onChange={(e) => setNewCardTitle(e.target.value)}
+                sx={{
+                  '& label': { color: 'text.primary' },
+                  '& input': {
+                    color: (theme) => theme.palette.primary.main,
+                    bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#333643' : 'white')
+                  },
+                  '& label.Mui-focused': { color: (theme) => theme.palette.primary.main },
+                  '& .MuiOutlinedInput-root': {
+                    '& fieldset': { borderColor: (theme) => theme.palette.primary.main },
+                    '&:hover fieldset': { borderColor: (theme) => theme.palette.primary.main },
+                    '&.Mui-focused fieldset': { borderColor: (theme) => theme.palette.primary.main }
+                  },
+                  '& .MuiOutlinedInput-input': {
+                    borderRadius: 1
+                  }
+                }}
+              />
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Button
+                  onClick={addNewCard}
+                  variant="contained" color="success" size="small"
+                  sx={{
+                    boxShadow: 'none',
+                    border: '0.5px solid',
+                    borderColor: (theme) => theme.palette.success.main,
+                    '&:hover': { bgcolor: (theme) => theme.palette.success.main }
+                  }}
+                >Add</Button>
+                <CloseIcon
+                  fontSize="small"
+                  sx={{
+                    color: (theme) => theme.palette.warning.light,
+                    cursor: 'pointer'
+                  }}
+                  onClick={toggleOpenNewCardForm}
+                />
+              </Box>
+            </Box>
+          }
+=======
                 // === CHỈNH SỬA TẠI ĐÂY ===
                 sx={{
                   "& input": {
@@ -331,6 +479,7 @@ function Column({ column }) {
               </Box>
             </Box>
           )}
+>>>>>>> 0e5ad0bb0cc95c501f4c77f48b063a6fb389d65b
         </Box>
       </Box>
     </div>

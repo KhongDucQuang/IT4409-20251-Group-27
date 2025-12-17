@@ -21,13 +21,25 @@
     "@emotion/styled": "^11.14.1",
     "@mui/base": "^5.0.0-beta.40",
     "@mui/icons-material": "^5.11.16",
+<<<<<<< HEAD
+    "@mui/material": "^5.18.0",
+    "axios": "^1.13.2",
+=======
     "@mui/material": "5.15.15",
     "@mui/x-date-pickers": "5",
     "dayjs": "^1.11.19",
+>>>>>>> 0e5ad0bb0cc95c501f4c77f48b063a6fb389d65b
     "lodash": "^4.17.21",
+    "material-ui-confirm": "^4.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+<<<<<<< HEAD
+    "react-router-dom": "^6.30.2",
+    "react-toastify": "^11.0.5",
+    "socket.io-client": "^4.8.1"
+=======
     "react-router-dom": "6"
+>>>>>>> 0e5ad0bb0cc95c501f4c77f48b063a6fb389d65b
   },
   "devDependencies": {
     "@types/react": "^18.0.28",
