@@ -19,14 +19,13 @@ const loginLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-// Register Endpoint
+
+// api/register
 router.post('/register', validate(registerSchema), async (req, res) => {
   const { email, password, name } = req.body;
 
   const existingUser = await prisma.user.findUnique({ where: { email } });
   if (existingUser) {
-    // Lỗi 409 (Conflict) là lỗi logic, không phải lỗi 500
-    // nên chúng ta chủ động trả về
     return res.status(409).json({ message: 'Email already exists' });
   }
 
@@ -52,9 +51,10 @@ router.post('/register', validate(registerSchema), async (req, res) => {
   });
 });
 
-// Login Endpoint
+// api/login
 // Đã sửa thành 'loginSchema' và thêm 'loginLimiter'
 // Không cần try...catch
+
 router.post('/login', loginLimiter, validate(loginSchema), async (req, res) => {
   const { email, password } = req.body;
 
@@ -66,7 +66,6 @@ router.post('/login', loginLimiter, validate(loginSchema), async (req, res) => {
 
   const isPasswordValid = await bcrypt.compare(password, user.password);
   if (!isPasswordValid) {
-    // Lỗi 401 là lỗi logic
     return res.status(401).json({ message: 'Invalid credentials' });
   }
 
