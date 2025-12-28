@@ -1,2 +1,0 @@
-username: nduyquang04@gmail.com
-pass : 123456
