@@ -5,6 +5,8 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 const router = Router();
 
+
+
 // Helper: Middleware kiểm tra quyền sở hữu item
 const checkItemPermission = async (req, res, next) => {
   const { itemId } = req.params;
@@ -33,7 +35,7 @@ const checkItemPermission = async (req, res, next) => {
         boardId_userId: { boardId: item.checklist.card.boardId, userId }
       }
     });
-    
+
     if (!membership) {
       return res.status(403).json({ message: 'Bạn không có quyền' });
     }
@@ -43,6 +45,9 @@ const checkItemPermission = async (req, res, next) => {
     res.status(500).json({ message: 'Lỗi máy chủ' });
   }
 };
+
+
+
 
 // PATCH /api/checklistItems/:itemId - Cập nhật item (content, isCompleted, position)
 router.patch('/:itemId', checkItemPermission, async (req, res) => {
@@ -58,6 +63,8 @@ router.patch('/:itemId', checkItemPermission, async (req, res) => {
     return res.status(400).json({ message: 'Không có thông tin cập nhật' });
   }
 
+
+
   try {
     const updatedItem = await prisma.checklistItem.update({
       where: { id: itemId },
@@ -72,7 +79,7 @@ router.patch('/:itemId', checkItemPermission, async (req, res) => {
 // DELETE /api/checklistItems/:itemId - Xóa checklist item
 router.delete('/:itemId', checkItemPermission, async (req, res) => {
   try {
-    await prisma.checklistItem.delete({ 
+    await prisma.checklistItem.delete({
       where: { id: req.params.itemId }
     });
     res.status(204).send();

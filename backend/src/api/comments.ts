@@ -5,6 +5,8 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 const router = Router();
 
+
+
 // Middleware kiểm tra quyền: Phải là người viết comment HOẶC admin board
 const checkCommentPermission = async (req, res, next) => {
   const { commentId } = req.params;

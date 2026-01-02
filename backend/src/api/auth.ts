@@ -52,8 +52,6 @@ router.post('/register', validate(registerSchema), async (req, res) => {
 });
 
 // api/login
-// Đã sửa thành 'loginSchema' và thêm 'loginLimiter'
-// Không cần try...catch
 
 router.post('/login', loginLimiter, validate(loginSchema), async (req, res) => {
   const { email, password } = req.body;
@@ -72,5 +70,6 @@ router.post('/login', loginLimiter, validate(loginSchema), async (req, res) => {
   const token = generateToken(user.id);
   res.status(200).json({ token });
 });
+
 
 export default router;

@@ -259,6 +259,8 @@ router.get('/:boardId/labels', checkBoardMembership, async (req, res) => {
   }
 });
 
+
+
 // GET /api/boards/:boardId/search - Tìm kiếm card
 router.get('/:boardId/search', checkBoardMembership, async (req, res) => {
   const { boardId } = req.params;
@@ -286,6 +288,8 @@ router.get('/:boardId/search', checkBoardMembership, async (req, res) => {
     res.status(500).json({ message: 'Lỗi tìm kiếm' });
   }
 });
+
+
 
 
 // GET /api/boards/:boardId/activities - Lấy lịch sử hoạt động (PHÂN TRANG)
@@ -325,6 +329,7 @@ router.get('/:boardId/activities', checkBoardMembership, async (req, res) => {
     res.status(500).json({ message: 'Lỗi lấy lịch sử hoạt động' });
   }
 });
+
 
 
 export default router;
