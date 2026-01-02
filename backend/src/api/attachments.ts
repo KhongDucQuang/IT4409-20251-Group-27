@@ -14,6 +14,8 @@ const checkAttachmentPermission = async (req, res, next) => {
   // Tạm thời cho qua để test:
   next();
 };
+ 
+
 
 // DELETE /api/attachments/:attachmentId
 router.delete('/:attachmentId', checkAttachmentPermission, async (req, res) => {
@@ -38,6 +40,7 @@ router.delete('/:attachmentId', checkAttachmentPermission, async (req, res) => {
       }
     });
 
+    
     // 3. Xóa record khỏi CSDL
     await prisma.attachment.delete({ where: { id: attachmentId } });
     res.status(204).send();
@@ -45,5 +48,6 @@ router.delete('/:attachmentId', checkAttachmentPermission, async (req, res) => {
     res.status(500).json({ message: 'Lỗi xóa tệp đính kèm' });
   }
 });
+
 
 export default router;
