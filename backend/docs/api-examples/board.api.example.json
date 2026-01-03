@@ -1,0 +1,52 @@
+﻿{
+  "endpoint": "/api/boards",
+  "method": "POST",
+  "description": "Create new board",
+  "request": {
+    "name": "Project Alpha",
+    "visibility": "private"
+  },
+  "response": {
+    "id": 1,
+    "name": "Project Alpha"
+  }
+}
+{
+  "endpoint": "/api/boards",
+  "method": "POST",
+  "description": "Create new board",
+  "request": {
+    "name": "Project Alpha",
+    "visibility": "private"
+  },
+  "response": {
+    "id": 1,
+    "name": "Project Alpha"
+  }
+}
+{
+  "endpoint": "/api/boards",
+  "method": "POST",
+  "description": "Create new board",
+  "request": {
+    "name": "Project Alpha",
+    "visibility": "private"
+  },
+  "response": {
+    "id": 1,
+    "name": "Project Alpha"
+  }
+}
+{
+  "endpoint": "/api/boards",
+  "method": "POST",
+  "description": "Create new board",
+  "request": {
+    "name": "Project Alpha",
+    "visibility": "private"
+  },
+  "response": {
+    "id": 1,
+    "name": "Project Alpha"
+  }
+}
