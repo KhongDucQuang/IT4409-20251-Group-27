@@ -1,0 +1,100 @@
+﻿{
+  "endpoint": "/api/boards",
+  "method": "POST",
+  "description": "Create new board",
+  "request": {
+    "name": "Project Alpha",
+    "visibility": "private"
+  },
+  "response": {
+    "id": 1,
+    "name": "Project Alpha"
+  }
+}
+{
+  "endpoint": "/api/boards",
+  "method": "POST",
+  "description": "Create new board",
+  "request": {
+    "name": "Project Alpha",
+    "visibility": "private"
+  },
+  "response": {
+    "id": 1,
+    "name": "Project Alpha"
+  }
+}
+{
+  "endpoint": "/api/boards",
+  "method": "POST",
+  "description": "Create new board",
+  "request": {
+    "name": "Project Alpha",
+    "visibility": "private"
+  },
+  "response": {
+    "id": 1,
+    "name": "Project Alpha"
+  }
+}
+{
+  "endpoint": "/api/boards",
+  "method": "POST",
+  "description": "Create new board",
+  "request": {
+    "name": "Project Alpha",
+    "visibility": "private"
+  },
+  "response": {
+    "id": 1,
+    "name": "Project Alpha"
+  }
+}
+,
+{
+  "note": "Example added on 2025-10-20 21:30:00",
+  "case": "auto-generated sample",
+  "status": "ok"
+}
+,
+{
+  "note": "Example added on 2025-10-27 22:10:00",
+  "case": "auto-generated sample",
+  "status": "ok"
+}
+,
+{
+  "note": "Example added on 2025-11-03 20:45:00",
+  "case": "auto-generated sample",
+  "status": "ok"
+}
+,
+{
+  "note": "Example added on 2025-11-07 23:20:00",
+  "case": "auto-generated sample",
+  "status": "ok"
+}
+,
+{
+  "note": "Example added on 2025-11-12 21:05:00",
+  "case": "auto-generated sample",
+  "status": "ok"
+}
+,
+{
+  "note": "Example added on 2025-11-17 22:50:00",
+  "case": "auto-generated sample",
+  "status": "ok"
+}
+,
+{
+  "note": "Example added on 2025-11-24 20:30:00",
+  "case": "auto-generated sample",
+  "status": "ok"
+}
+,
+{
+  "note": "Example added on 2025-11-29 23:40:00",
+  "case": "auto-generated sample",
+  "status": "ok"
+}

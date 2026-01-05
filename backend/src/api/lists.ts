@@ -7,23 +7,15 @@ import { checkBoardMembership } from '../middlewares/boardAuth';
 const prisma = new PrismaClient();
 const router = Router();
 
-// THAY ĐỔI: Xóa toàn bộ middleware 'checkBoardOwnership' cũ được định nghĩa ở đây
-
-// POST /api/lists - Tạo một list mới trong một board
-// THAY ĐỔI: Áp dụng middleware vì route này có `boardId` trong body
+// POST /api/lists
 router.post('/', checkBoardMembership, async (req, res) => {
   const { title, boardId } = req.body;
-  // const userId = req.user!.id; // Không cần nữa
 
   if (!title || !boardId) {
     return res.status(400).json({ message: 'Tiêu đề và boardId là bắt buộc' });
   }
 
   try {
-    // THAY ĐỔI: Xóa khối 'if' kiểm tra ownerId. Middleware đã làm việc này.
-    // const board = await prisma.board.findUnique(...);
-    // if (!board || board.ownerId !== userId) { ... }
-
     // Tính toán position cho list mới
     const maxPosition = await prisma.list.aggregate({
       where: { boardId },
@@ -44,14 +36,13 @@ router.post('/', checkBoardMembership, async (req, res) => {
   }
 });
 
-// PATCH /api/lists/:listId - Cập nhật list (đổi tên, di chuyển)
+// PATCH /api/lists/:listId - Cập nhật list theo id
 router.patch('/:listId', async (req, res) => {
   const { listId } = req.params;
   const { title, position } = req.body;
   const userId = req.user!.id;
 
   try {
-    // THAY ĐỔI: Logic kiểm tra quyền
     // 1. Tìm list để lấy boardId
     const list = await prisma.list.findUnique({ where: { id: listId } });
     if (!list) {
@@ -83,13 +74,12 @@ router.patch('/:listId', async (req, res) => {
   }
 });
 
-// DELETE /api/lists/:listId - Xóa một list
+// DELETE /api/lists/:listId - Xóa list theo id
 router.delete('/:listId', async (req, res) => {
   const { listId } = req.params;
   const userId = req.user!.id;
 
   try {
-    // THAY ĐỔI: Logic kiểm tra quyền
     // 1. Tìm list để lấy boardId
     const list = await prisma.list.findUnique({ where: { id: listId } });
     if (!list) {

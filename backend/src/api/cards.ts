@@ -32,6 +32,7 @@ const checkCardPermission = async (req, res, next) => {
     }
     
     // Gắn boardId của card vào request để dùng
+
     (req as any).boardId = card.boardId;
     next();
   } catch (error) {
@@ -39,7 +40,7 @@ const checkCardPermission = async (req, res, next) => {
   }
 };
 
-// POST /api/cards - Tạo một card mới
+// POST /api/cards
 router.post('/', async (req, res) => {
   const { title, listId } = req.body;
   const userId = req.user!.id;
@@ -49,14 +50,13 @@ router.post('/', async (req, res) => {
   }
 
   try {
-    // THAY ĐỔI: Logic kiểm tra quyền
     // 1. Tìm list để lấy boardId
     const list = await prisma.list.findUnique({ where: { id: listId } });
     if (!list) {
       return res.status(404).json({ message: 'Không tìm thấy list' });
     }
 
-    // 2. Kiểm tra xem user có phải là thành viên của board chứa list này không
+    // 2. Check user có phải là thành viên của board chứa list này không
     const membership = await prisma.boardMember.findUnique({
       where: {
         boardId_userId: { boardId: list.boardId, userId: userId },
@@ -101,17 +101,13 @@ router.post('/', async (req, res) => {
   }
 });
 
-// PATCH /api/cards/:cardId - Cập nhật card
+// PATCH /api/cards/:cardId 
 router.patch('/:cardId', checkCardPermission, async (req, res) => {
   const { cardId } = req.params;
   const { title, description, dueDate, position, listId } = req.body;
   // const userId = req.user!.id; // Không cần nữa
 
   try {
-    // THAY ĐỔI: Xóa toàn bộ logic kiểm tra quyền ở đây
-    // (tìm card, check membership...)
-    
-    // Chỉ cần tiến hành cập nhật
     const updatedCard = await prisma.card.update({
       where: { id: cardId },
       data: {
@@ -131,11 +127,7 @@ router.patch('/:cardId', checkCardPermission, async (req, res) => {
 // DELETE /api/cards/:cardId - Xóa card
 router.delete('/:cardId', checkCardPermission, async (req, res) => {
   const { cardId } = req.params;
-  // const userId = req.user!.id; // Không cần nữa
-
   try {
-    // THAY ĐỔI: Xóa toàn bộ logic kiểm tra quyền ở đây
-
     // Chỉ cần tiến hành xóa
     await prisma.card.delete({ where: { id: cardId } });
     res.status(204).send();
@@ -156,7 +148,7 @@ router.post('/:cardId/assignees', checkCardPermission, async (req, res) => {
   }
 
   try {
-    // 1. Kiểm tra xem người được gán có phải là thành viên board không
+    // 1. Check xem người được gán có phải là thành viên board không
     const memberToAssign = await prisma.boardMember.findUnique({
       where: { boardId_userId: { boardId, userId: userToAssignId } },
     });

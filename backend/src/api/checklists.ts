@@ -5,7 +5,7 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 const router = Router();
 
-// Helper: Middleware kiểm tra quyền sở hữu checklist
+// Middleware kiểm tra quyền sở hữu checklist
 const checkChecklistPermission = async (req, res, next) => {
   const { checklistId } = req.params;
   const userId = req.user!.id;
@@ -39,7 +39,6 @@ const checkChecklistPermission = async (req, res, next) => {
 };
 
 // PATCH /api/checklists/:checklistId - Sửa checklist (đổi tên)
-// ⬇️ HOÀN THIỆN LOGIC CHO BẠN ⬇️
 router.patch('/:checklistId', checkChecklistPermission, async (req, res) => {
   const { checklistId } = req.params;
   const { title } = req.body;
