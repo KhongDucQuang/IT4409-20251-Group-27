@@ -1,48 +1,15 @@
-<<<<<<< HEAD
-import DashboardIcon from '@mui/icons-material/Dashboard'
-import Box from '@mui/material/Box'
-import Chip from '@mui/material/Chip'
-import VpnLockIcon from '@mui/icons-material/VpnLock'
-import AddToDriveIcon from '@mui/icons-material/AddToDrive'
-import BoltIcon from '@mui/icons-material/Bolt'
-import FilterListIcon from '@mui/icons-material/FilterList'
-import Avatar from '@mui/material/Avatar'
-import AvatarGroup from '@mui/material/AvatarGroup'
-import Tooltip from '@mui/material/Tooltip'
-import Button from '@mui/material/Button'
-import Popover from '@mui/material/Popover'
-import Typography from '@mui/material/Typography'
-import TextField from '@mui/material/TextField'
-import PersonAddIcon from '@mui/icons-material/PersonAdd'
-import { capitalizeFirstLetter } from '~/utils/formatter'
-import { useState } from 'react'
-import { inviteUserToBoardAPI } from '~/apis/boardApi'
-import { toast } from 'react-toastify'
-const MENU_STYLES ={
-  color: 'white',
-  bgcolor: 'transparent',
-  border: 'none',
-  paddingX: '5px',
-  borderRadius: '4px',
-  '.MuiSvgIcon-root': {
-    color: 'white'
-=======
-import DashboardIcon from "@mui/icons-material/Dashboard";
 import Box from "@mui/material/Box";
 import Chip from "@mui/material/Chip";
-import VpnLockIcon from "@mui/icons-material/VpnLock";
-import AddToDriveIcon from "@mui/icons-material/AddToDrive";
-import BoltIcon from "@mui/icons-material/Bolt";
+import DashboardIcon from "@mui/icons-material/Dashboard";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import Avatar from "@mui/material/Avatar";
 import AvatarGroup from "@mui/material/AvatarGroup";
-import Tooltip from "@mui/material/Tooltip";
-import Button from "@mui/material/Button";
+import { Tooltip, Button, Popover, TextField, Typography } from "@mui/material";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
-import { capitalizeFirstLetter } from "~/utils/formatter";
 import { useState } from "react";
-import FilterModal from "./Modals/FilterModal";
-
+import { inviteUserToBoardAPI } from "~/apis/boardApi";
+import { toast } from "react-toastify";
+import FilterContent from "./Modals/FilterContent.jsx";
 const MENU_STYLES = {
   color: "white",
   bgcolor: "transparent",
@@ -51,41 +18,51 @@ const MENU_STYLES = {
   borderRadius: "4px",
   ".MuiSvgIcon-root": {
     color: "white",
->>>>>>> 0e5ad0bb0cc95c501f4c77f48b063a6fb389d65b
   },
   "&:hover": {
     bgcolor: "primary.50",
   },
 };
 function BoardBar({ board }) {
-<<<<<<< HEAD
   // State xử lý Invite
-  const [anchorElInvite, setAnchorElInvite] = useState(null)
-  const openInvite = Boolean(anchorElInvite)
-  const [emailInvite, setEmailInvite] = useState('')
+  const [anchorElInvite, setAnchorElInvite] = useState(null);
+  const openInvite = Boolean(anchorElInvite);
+  const [emailInvite, setEmailInvite] = useState("");
+
+  // State quản lý Filter
+  const [anchorElFilter, setAnchorElFilter] = useState(null);
+  const openFilter = Boolean(anchorElFilter);
+  const idFilter = openFilter ? "filter-popover" : undefined;
+
+  // mở Popover
+  const handleOpenFilterPopover = (event) => {
+    setAnchorElFilter(event.currentTarget);
+  };
+
+  // đống Popover
+  const handleCloseFilterPopover = () => {
+    setAnchorElFilter(null);
+  };
 
   const handleInviteUser = async () => {
-    if (!emailInvite) return
+    if (!emailInvite) return;
 
     try {
-      await inviteUserToBoardAPI(board._id, emailInvite)
-      toast.success('Mời thành viên thành công!')
-      setEmailInvite('')
-      setAnchorElInvite(null)
+      await inviteUserToBoardAPI(board._id, emailInvite);
+      toast.success("Mời thành viên thành công!");
+      setEmailInvite("");
+      setAnchorElInvite(null);
       // Mẹo nhỏ: Reload trang để cập nhật danh sách thành viên mới vào Board
       // (Cách xịn hơn là update state board ở component cha nhưng reload là nhanh nhất)
-      window.location.reload()
+      window.location.reload();
     } catch (error) {
-      toast.error('Lỗi: ' + (error?.response?.data?.message || 'Không thể mời người dùng này'))
+      toast.error(
+        "Lỗi: " +
+          (error?.response?.data?.message || "Không thể mời người dùng này")
+      );
     }
-  }
-=======
-  // State quản lý Modal Lọc
-  const [openFilterModal, setOpenFilterModal] = useState(false);
+  };
 
-  const handleOpenFilterModal = () => setOpenFilterModal(true);
-  const handleCloseFilterModal = () => setOpenFilterModal(false);
->>>>>>> 0e5ad0bb0cc95c501f4c77f48b063a6fb389d65b
   return (
     <Box
       sx={{
@@ -99,57 +76,58 @@ function BoardBar({ board }) {
         overflowX: "auto",
         bgcolor: (theme) =>
           theme.palette.mode === "dark" ? "#34495e" : "#1976d2",
+        borderBottom: "1px solid white",
       }}
     >
-      {/* Board bar content goes here */}
       <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
         <Chip
-          sx={MENU_STYLES}
+          sx={{
+            color: "white",
+            bgcolor: "transparent",
+            border: "none",
+            paddingX: "5px",
+            borderRadius: "4px",
+            "& .MuiSvgIcon-root": { color: "white" },
+            "&:hover": { bgcolor: "primary.50" },
+          }}
           icon={<DashboardIcon />}
           label={board?.title}
           clickable
         />
+      </Box>
 
+      <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
         <Chip
           sx={MENU_STYLES}
-          icon={<VpnLockIcon />}
-          label={capitalizeFirstLetter(board?.type)}
-          clickable
-        />
-
-        <Chip
-          sx={MENU_STYLES}
-          icon={<AddToDriveIcon />}
-          label="Add To Google Drive"
-          clickable
-        />
-
-        <Chip
-          sx={MENU_STYLES}
-          icon={<BoltIcon />}
-          label="Automation"
-          clickable
-        />
-
-        <Chip
-          sx={MENU_STYLES}
+          size="small"
           icon={<FilterListIcon />}
           label="Filters"
           clickable
-          onClick={handleOpenFilterModal}
+          onClick={handleOpenFilterPopover}
+          aria-describedby={idFilter}
         />
-        {/* Render Modal Lọc */}
-        <FilterModal open={openFilterModal} onClose={handleCloseFilterModal} />
-      </Box>
-      <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+
+        {/* Thay thế nội dung FilterModal bằng nội dung Popover */}
+        <FilterContent
+          sx={{ borderRadius: "10px" }}
+          anchorEl={anchorElFilter}
+          onClose={handleCloseFilterPopover}
+        />
+        {/* NÚT INVITE */}
         <Button
           variant="outlined"
+          size="small"
           startIcon={<PersonAddIcon />}
           sx={{
             color: "white",
             borderColor: "white",
-            "&:hover": { borderColor: "white" },
+            "&:hover": {
+              borderColor: "white",
+              bgcolor: "white",
+              color: "primary.main",
+            },
           }}
+          onClick={(e) => setAnchorElInvite(e.currentTarget)}
         >
           Invite
         </Button>
@@ -159,11 +137,17 @@ function BoardBar({ board }) {
           open={openInvite}
           anchorEl={anchorElInvite}
           onClose={() => setAnchorElInvite(null)}
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-          transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+          transformOrigin={{ vertical: "top", horizontal: "right" }}
+          sx={{ mt: 0.5 }}
         >
-          <Box sx={{ p: 2, width: '300px' }}>
-            <Typography variant="h6" sx={{ mb: 2, fontSize: '1rem', fontWeight: 'bold' }}>Mời người vào Board</Typography>
+          <Box sx={{ p: 2, width: "300px" }}>
+            <Typography
+              variant="h6"
+              sx={{ mb: 2, fontSize: "1rem", fontWeight: "bold" }}
+            >
+              Mời người vào Board
+            </Typography>
             <TextField
               fullWidth
               label="Nhập email"
@@ -172,65 +156,28 @@ function BoardBar({ board }) {
               onChange={(e) => setEmailInvite(e.target.value)}
               sx={{ mb: 2 }}
             />
-            <Button variant="contained" fullWidth onClick={handleInviteUser}>Mời</Button>
+            <Button variant="contained" fullWidth onClick={handleInviteUser}>
+              Mời
+            </Button>
           </Box>
         </Popover>
+
         <AvatarGroup
           max={4}
           sx={{
-            gap: "10px",
             "& .MuiAvatar-root": {
-              width: 34,
-              height: 34,
+              width: 30,
+              height: 30,
               fontSize: 16,
               border: "none",
-              color: "white",
-              cursor: "pointer",
-              "&:first-of-type": { bgcolor: "#a4b0be" },
             },
           }}
         >
-          <Tooltip title="MeoCute">
-            <Avatar
-              alt="MeoCute"
-              src="https://thuvienquangngai.vn/wp-content/uploads/2025/01/avatar-vo-tri-ngau-13-1.jpg"
-            />
-          </Tooltip>
-          <Tooltip title="VitCute">
-            <Avatar
-              alt="VitCute"
-              src="https://thuvienquangngai.vn/wp-content/uploads/2025/01/avatar-vo-tri-ngau-16.jpg"
-            />
-          </Tooltip>
-          <Tooltip title="HiHi">
-            <Avatar
-              alt="HiHi"
-              src="https://thuvienquangngai.vn/wp-content/uploads/2025/01/avatar-vo-tri-ngau-11.jpg"
-            />
-          </Tooltip>
-          <Tooltip title="HaHa">
-            <Avatar
-              alt="HaHa"
-              src="https://thuvienquangngai.vn/wp-content/uploads/2025/01/avatar-vo-tri-ngau-9.jpg"
-            />
-          </Tooltip>
-          <Tooltip title="MeoCute">
-            <Avatar
-              alt="MeoCute"
-              src="https://thuvienquangngai.vn/wp-content/uploads/2025/01/avatar-vo-tri-ngau-13-1.jpg"
-            />
-          </Tooltip>
-          <Tooltip title="MeoCute">
-            <Avatar
-              alt="MeoCute"
-              src="https://thuvienquangngai.vn/wp-content/uploads/2025/01/avatar-vo-tri-ngau-13-1.jpg"
-            />
-          </Tooltip>
-          {/* {board?.members?.map((member, index) => (
-             <Tooltip key={index} title={member.user?.name}>
-                <Avatar alt={member.user?.name} src={member.user?.avatarUrl} />
-             </Tooltip>
-          ))} */}
+          {board?.members?.map((member, index) => (
+            <Tooltip key={index} title={member.user?.name}>
+              <Avatar alt={member.user?.name} src={member.user?.avatarUrl} />
+            </Tooltip>
+          ))}
         </AvatarGroup>
       </Box>
     </Box>

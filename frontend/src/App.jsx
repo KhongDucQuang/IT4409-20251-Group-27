@@ -1,18 +1,18 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
-import Board from './pages/Boards/_id'
-import Boards from './pages/Boards/index'
-import Login from './pages/Auth/Login'
-import { ToastContainer } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
-import Register from './pages/Auth/Register'
+import { Routes, Route, Navigate } from 'react-router-dom';
+import Board from './pages/Boards/_id';
+import Boards from './pages/Boards/index';
+import Login from './pages/Auth/Login';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import Register from './pages/Auth/Register';
 // 1. 👇 Import ConfirmProvider
-import { ConfirmProvider } from 'material-ui-confirm'
+import { ConfirmProvider } from 'material-ui-confirm';
 
 function App() {
   return (
     <>
       {/* 2. 👇 Bọc ConfirmProvider quanh Routes */}
-      <ConfirmProvider
+      <ConfirmProvider 
         defaultOptions={{
           allowClose: false,
           dialogProps: { maxWidth: 'xs' }, // Popup nhỏ gọn
@@ -32,7 +32,7 @@ function App() {
 
       <ToastContainer position="bottom-right" theme="colored" />
     </>
-  )
+  );
 }
 
-export default App
+export default App;

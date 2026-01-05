@@ -14,6 +14,15 @@ const router = Router();
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 phút
   max: 10, // Giới hạn 10 lần thử
+  message: "Quá nhiều lần thử đăng nhập, vui lòng thử lại sau 15 phút",
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// === Cấu hình Rate Limit cho Login ===
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 phút
+  max: 10, // Giới hạn 10 lần thử
   message: 'Quá nhiều lần thử đăng nhập, vui lòng thử lại sau 15 phút',
   standardHeaders: true,
   legacyHeaders: false,
