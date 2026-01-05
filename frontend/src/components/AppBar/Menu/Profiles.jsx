@@ -1,25 +1,25 @@
-import React from 'react'
-import Box from '@mui/material/Box'
-import Divider from '@mui/material/Divider'
-import Avatar from '@mui/material/Avatar'
-import Menu from '@mui/material/Menu'
-import MenuItem from '@mui/material/MenuItem'
-import ListItemIcon from '@mui/material/ListItemIcon'
-import Tooltip from '@mui/material/Tooltip'
-import IconButton from '@mui/material/IconButton'
-import PersonAdd from '@mui/icons-material/PersonAdd'
-import Settings from '@mui/icons-material/Settings'
-import Logout from '@mui/icons-material/Logout'
+import React from "react";
+import Box from "@mui/material/Box";
+import Divider from "@mui/material/Divider";
+import Avatar from "@mui/material/Avatar";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import Tooltip from "@mui/material/Tooltip";
+import IconButton from "@mui/material/IconButton";
+import PersonAdd from "@mui/icons-material/PersonAdd";
+import Settings from "@mui/icons-material/Settings";
+import Logout from "@mui/icons-material/Logout";
 
 function Profiles() {
-  const [anchorEl, setAnchorEl] = React.useState(null)
-  const open = Boolean(anchorEl)
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const open = Boolean(anchorEl);
   const handleClick = (event) => {
-    setAnchorEl(event.currentTarget)
-  }
+    setAnchorEl(event.currentTarget);
+  };
   const handleClose = () => {
-    setAnchorEl(null)
-  }
+    setAnchorEl(null);
+  };
   return (
     <Box>
       <Tooltip title="Account settings">
@@ -27,11 +27,15 @@ function Profiles() {
           onClick={handleClick}
           size="small"
           sx={{ padding: 0 }}
-          aria-controls={open ? 'basic-menu-profiles' : undefined}
+          aria-controls={open ? "basic-menu-profiles" : undefined}
           aria-haspopup="true"
-          aria-expanded={open ? 'true' : undefined}
+          aria-expanded={open ? "true" : undefined}
         >
-          <Avatar sx={{ width: 36, height: 36 }} alt='Meo' src="https://thuvienquangngai.vn/wp-content/uploads/2025/01/avatar-vo-tri-ngau-13-1.jpg" />
+          <Avatar
+            sx={{ width: 30, height: 30 }}
+            alt="Meo"
+            src="https://thuvienquangngai.vn/wp-content/uploads/2025/01/avatar-vo-tri-ngau-13-1.jpg"
+          />
         </IconButton>
       </Tooltip>
       <Menu
@@ -41,15 +45,15 @@ function Profiles() {
         onClose={handleClose}
         MenuListProps={{
           list: {
-            'aria-labelledby': 'basic-button-profiles'
-          }
+            "aria-labelledby": "basic-button-profiles",
+          },
         }}
       >
         <MenuItem>
-          <Avatar sx= {{ width: 28, height: 28, mr: 2 }} /> Profile
+          <Avatar sx={{ width: 28, height: 28, mr: 2 }} /> Profile
         </MenuItem>
         <MenuItem>
-          <Avatar sx= {{ width: 28, height: 28, mr: 2 }}/> My account
+          <Avatar sx={{ width: 28, height: 28, mr: 2 }} /> My account
         </MenuItem>
         <Divider />
         <MenuItem>
@@ -72,7 +76,7 @@ function Profiles() {
         </MenuItem>
       </Menu>
     </Box>
-  )
+  );
 }
 
-export default Profiles
+export default Profiles;
